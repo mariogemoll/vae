@@ -1,0 +1,11 @@
+{
+  "name": "widget-wrappers",
+  "version": "0.0.0",
+  "dependencies": {
+    "pica": "^9.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.5",
+    "typescript": "^5.8.3"
+  }
+}

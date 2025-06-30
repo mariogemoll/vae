@@ -1,0 +1,8 @@
+{
+  "name": "vae-widgets",
+  "version": "0.0.0",
+  "dependencies": {
+    "@types/pica": "^9.0.5",
+    "typescript": "^5.8.3"
+  }
+}
