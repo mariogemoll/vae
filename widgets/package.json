@@ -1,8 +1,22 @@
 {
   "name": "vae-widgets",
   "version": "0.0.0",
+  "type": "module",
   "dependencies": {
     "@types/pica": "^9.0.5",
     "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "^5.0.0",
+    "@types/fs-extra": "^11.0.4",
+    "@types/markdown-it": "^14.1.2",
+    "@types/node": "^24.0.3",
+    "@types/pug": "^2.0.10",
+    "@typescript-eslint/eslint-plugin": "^8.35.0",
+    "@typescript-eslint/parser": "^8.35.0",
+    "eslint": "^9.30.0",
+    "eslint-plugin-import": "^2.32.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.35.0"
   }
 }

@@ -1,0 +1,63 @@
+name: Style checks etc.
+
+on: [push, pull_request]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.13"
+
+    - name: Install Python dependencies
+      working-directory: notebook
+      run: |
+        pip install -r requirements-build.txt
+        pip install -r requirements-check.txt
+
+    - name: Run flake8
+      working-directory: notebook
+      run: flake8 .
+
+    - name: Run isort (check only)
+      working-directory: notebook
+      run: isort . --check-only --diff
+
+    - name: Run black (check only)
+      working-directory: notebook
+      run: black --check --diff .
+
+    - name: Run mypy
+      working-directory: notebook
+      run: mypy .
+
+    - name: Run markdownlint-cli2
+      working-directory: text
+      run: |
+        npm install markdownlint-cli2
+        npx markdownlint-cli2 *.md
+
+    - name: "Widgets: Install dependencies"
+      working-directory: widgets
+      run: npm i
+
+    - name: "Widgets: Run ESLint"
+      working-directory: widgets
+      run: npx eslint src
+
+    - name: "Widgets: Compile TypeScript"
+      working-directory: widgets
+      run: npx tsc
+
+    - name: "Widget wrappers: Install dependencies"
+      working-directory: notebook/widget-wrappers
+      run: npm i
+
+    - name: "Widget wrappers: Run ESLint"
+      working-directory: notebook/widget-wrappers
+      run: npx eslint src

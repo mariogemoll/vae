@@ -11,29 +11,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Checkout submodule
-        run: |
-          mkdir -p ~/.ssh
-          echo '${{ secrets.MGCOM_DEPLOY_KEY }}' > ~/.ssh/id_for_mgcom
-          chmod 600 ~/.ssh/id_for_mgcom
-
-          cat << EOF > ~/.ssh/config
-          Host github.com
-            HostName github.com
-            User git
-            IdentityFile ~/.ssh/id_for_mgcom
-          EOF
-
-          git submodule update --init
-        shell: bash
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
 
       - name: Install Python dependencies
-        run: pip install google-api-python-client google-auth google-auth-oauthlib nbformat papermill ipykernel
+        working-directory: notebook
+        run: pip install -r requirements-build.txt
 
       - name: Write credentials to file
         run: echo '${{ secrets.GOOGLE_CREDENTIALS }}' > /tmp/key.json
