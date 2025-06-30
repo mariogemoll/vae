@@ -1,0 +1,28 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install Python dependencies
+        working-directory: notebook
+        run: pip install -r requirements-build.txt
+
+      - name: Build the notebook
+        working-directory: notebook
+        run: python makenotebook.py
+      
+      - name: Run the notebook
+        working-directory: notebook
+        run: papermill notebook.ipynb notebook.out.ipynb
