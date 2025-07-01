@@ -4,5 +4,6 @@ __pycache__
 node_modules
 package-lock.json
 /notebook/widget-wrappers/dist
+/notebook/**/*.ipynb
 /widgets/dist
 
