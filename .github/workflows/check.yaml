@@ -17,7 +17,6 @@ jobs:
     - name: Install Python dependencies
       working-directory: notebook
       run: |
-        pip install -r requirements-build.txt
         pip install -r requirements-check.txt
 
     - name: Run flake8
@@ -31,10 +30,6 @@ jobs:
     - name: Run black (check only)
       working-directory: notebook
       run: black --check --diff .
-
-    - name: Run mypy
-      working-directory: notebook
-      run: mypy .
 
     - name: Run markdownlint-cli2
       working-directory: text

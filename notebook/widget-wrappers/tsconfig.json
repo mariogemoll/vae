@@ -1,18 +1,23 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "Node",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "ES2022",
+    "moduleResolution": "node",
     "outDir": "dist",
     "baseUrl": ".",
-"paths": {
-  "widgets/*": ["../../widgets/src/*"]
-},
+    "paths": {
+      "widgets/*": [
+        "../../widgets/src/*"
+      ]
+    },
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src", "../../widgets/src"],
-
+  "include": [
+    "src",
+    "../../widgets/src"
+  ]
 }
