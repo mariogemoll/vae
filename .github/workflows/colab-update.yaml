@@ -27,9 +27,17 @@ jobs:
         working-directory: notebook
         run: python makenotebook.py
       
+      - name: Trust the notebook
+        working-directory: notebook
+        run: jupyter trust notebook.ipynb
+
       - name: Run the notebook
         working-directory: notebook
-        run: papermill notebook.ipynb notebook.out.ipynb
+        run: jupyter execute notebook.ipynb --output=notebook.out.ipynb
+
+      - name: Trust the completed notebook
+        working-directory: notebook
+        run: jupyter trust notebook.out.ipynb
 
       - name: Run notebook upload script
         env:

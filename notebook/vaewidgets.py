@@ -1,3 +1,5 @@
+import anywidget
+import traitlets
 from IPython.display import HTML
 
 
@@ -17,3 +19,11 @@ def dataset_explanation():
     <script>{js}</script>
     """
     )
+
+
+class AreaSelectionWidget(anywidget.AnyWidget):
+    _esm = "widget-wrappers/dist/areaselection.js"
+    x = traitlets.Float(0.1).tag(sync=True)
+    y = traitlets.Float(0.1).tag(sync=True)
+    width = traitlets.Float(0.1).tag(sync=True)
+    height = traitlets.Float(0.1).tag(sync=True)

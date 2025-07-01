@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "dependencies": {
+    "@anywidget/types": "^0.2.0",
     "@types/pica": "^9.0.5",
     "typescript": "^5.8.3"
   },
@@ -10,7 +11,7 @@
     "@stylistic/eslint-plugin": "^5.0.0",
     "@types/fs-extra": "^11.0.4",
     "@types/markdown-it": "^14.1.2",
-    "@types/node": "^24.0.3",
+    "@types/node": "^24.0.8",
     "@types/pug": "^2.0.10",
     "@typescript-eslint/eslint-plugin": "^8.35.0",
     "@typescript-eslint/parser": "^8.35.0",

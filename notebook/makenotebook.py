@@ -27,13 +27,23 @@ if __name__ == "__main__":
                     "!cd widget-wrappers && \\\n",
                     "npm i --no-progress && \\\n",
                     "npx esbuild src/datasetexplanation.ts --bundle --format=iife \\\n",
-                    "--sourcemap=inline --loader:.png=dataurl --outfile=dist/datasetexplanation.js",
+                    "--sourcemap=inline --loader:.png=dataurl \\\n",
+                    "--outfile=dist/datasetexplanation.js && \\\n",
+                    "npx esbuild ../../widgets/src/areaselection.ts \\\n",
+                    "--outfile=dist/areaselection.js\n",
                 ]
             ),
         ),
         cell_with_id("imports", new_code_cell("from vaewidgets import *")),
         cell_with_id("dataset_explanation", new_markdown_cell("## Dataset explanation")),
         cell_with_id("dataset_explanation_code", new_code_cell("dataset_explanation()")),
+        cell_with_id(
+            "train_validatation_set_split", new_markdown_cell("## Train/validation set split")
+        ),
+        cell_with_id(
+            "valset_selection",
+            new_code_cell(["valset_selection = AreaSelectionWidget()\n", "valset_selection"]),
+        ),
     ]
 
     nb.metadata.kernelspec = {
