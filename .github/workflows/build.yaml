@@ -19,10 +19,6 @@ jobs:
         working-directory: notebook
         run: pip install -r requirements-build.txt
 
-      - name: Build the notebook
-        working-directory: notebook
-        run: python makenotebook.py
-      
       - name: Trust the notebook
         working-directory: notebook
         run: jupyter trust notebook.ipynb

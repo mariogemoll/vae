@@ -23,10 +23,6 @@ jobs:
       - name: Write credentials to file
         run: echo '${{ secrets.GOOGLE_CREDENTIALS }}' > /tmp/key.json
 
-      - name: Build the notebook
-        working-directory: notebook
-        run: python makenotebook.py
-      
       - name: Trust the notebook
         working-directory: notebook
         run: jupyter trust notebook.ipynb
