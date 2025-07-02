@@ -31,6 +31,10 @@ jobs:
       working-directory: notebook
       run: black --check --diff .
 
+    - name: Check that the notebook has no output
+      working-directory: notebook
+      run: python check_no_output.py notebook.ipynb
+
     - name: Run markdownlint-cli2
       working-directory: text
       run: |
