@@ -9,7 +9,7 @@ export async function renderSample(
   hiresCanvas: HTMLCanvasElement,
   downsampledCanvas: HTMLCanvasElement,
   img: HTMLImageElement,
-  radius: number,
+  size: number,
   hue: number): Promise<void> {
   const hiresCtx = hiresCanvas.getContext('2d');
   if (!hiresCtx) {
@@ -26,7 +26,7 @@ export async function renderSample(
   // Scale and draw image
   const imgW = img.naturalWidth;
   const imgH = img.naturalHeight;
-  const scale = radius * bigSize / Math.max(imgW, imgH);
+  const scale = size * bigSize / Math.max(imgW, imgH);
 
   hiresCtx.save();
   hiresCtx.translate(bigSize / 2, bigSize / 2);

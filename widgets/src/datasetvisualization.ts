@@ -1,12 +1,12 @@
 import fromBase64 from 'es-arraybuffer-base64/Uint8Array.fromBase64';
 
 import { sizeRange, hueRange } from './constants.js';
+import type { Pair } from './types/pair.js';
 import { el } from './util.js';
 
-type Range = [number, number];
 function setUpUi(
   scatterCanvas: HTMLCanvasElement, imageCanvas: HTMLCanvasElement, sizeValueSpan: HTMLSpanElement,
-  hueValueSpan: HTMLSpanElement, allCoords: [number, number][], allImages: Uint8Array[],
+  hueValueSpan: HTMLSpanElement, allCoords: Pair<number>[], allImages: Uint8Array[],
   allLabels: string[]): void {
   const scatterCtx = scatterCanvas.getContext('2d');
   if (!scatterCtx) {
@@ -22,7 +22,7 @@ function setUpUi(
 
   // Draw scatter points
   function drawScatter(scatterCtx: CanvasRenderingContext2D, highlightIndex: number | null,
-    xRange: Range, yRange: Range): void {
+    xRange: Pair<number>, yRange: Pair<number>): void {
     scatterCtx.clearRect(0, 0, 400, 400);
     const scale = 380;
     const margin = 10;
@@ -153,13 +153,8 @@ export function setUpDatasetVisualization(
   valsetY: number[], trainsetImagesBase64: string, valsetImagesBase64: string): void {
   const alphaCanvas: HTMLCanvasElement = el(box, 'canvas.alpha-space') as HTMLCanvasElement;
   const imgCanvas: HTMLCanvasElement = el(box, 'canvas.pic') as HTMLCanvasElement;
-  console.log('alphaCanvas', alphaCanvas);
-  console.log('imgCanvas', imgCanvas);
   const sizeSpan: HTMLSpanElement = el(box, '.size span') as HTMLSpanElement;
-  console.log('sizeSpan', sizeSpan);
   const hueSpan: HTMLSpanElement = el(box, '.hue span') as HTMLSpanElement;
-  console.log('hueSpan', hueSpan);
-
 
   const data: Record<string, { X: number[], Y: number[], images: string }> = {
     'train': {
@@ -177,7 +172,7 @@ export function setUpDatasetVisualization(
   const labels = ['train', 'val'];
 
 
-  const allCoords: [number, number][] = [];
+  const allCoords: Pair<number>[] = [];
   const allImages: Uint8Array[] = [];
   const allLabels: string[] = [];
   for (const label of labels) {
@@ -203,5 +198,4 @@ export function setUpDatasetVisualization(
     alphaCanvas, imgCanvas, sizeSpan, hueSpan, allCoords, allImages,
     allLabels
   );
-  console.log('Dataset visualization setup complete.');
 }

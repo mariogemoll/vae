@@ -1,12 +1,15 @@
-export function setUp2dSelector(
-  svg: SVGSVGElement, callback: (x: number, y: number) => void): void {
-  const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-  dot.setAttribute('r', '9');
-  dot.setAttribute('fill', 'red'); // Dot color
-  dot.setAttribute('cx', '0');
-  dot.setAttribute('cy', '0');
-  svg.appendChild(dot);
+import { addDot } from './svg';
+import type { Pair } from './types/pair';
+import { map01ToRange } from './util';
+
+export function setUpUnitArea2dSelector(
+  svg: SVGSVGElement,
+  initialX: number,
+  initialY: number,
+  callback: (x: number, y: number) => void
+): void {
   const size = svg.viewBox.baseVal.width;
+  const dot = addDot(svg, initialX * size, initialY * size, 9);
   let dragging = false;
 
   function setDot(x: number, y: number): void{
@@ -40,7 +43,35 @@ export function setUp2dSelector(
   window.addEventListener('mouseup', () => {
     dragging = false;
   });
+  callback(initialX, initialY); // Initial callback
+}
 
-  // Initial callback
-  setDot(size / 2, size / 2);
+export function setUp2dSelector(
+  svg: SVGSVGElement,
+  xRange: Pair<number>,
+  yRange: Pair<number>,
+  callback: (x: number, y: number) => void
+): void {
+  function internalCallback(x: number, y: number): void {
+    const mappedX = map01ToRange(xRange, x);
+    const mappedY = map01ToRange(yRange, y);
+    callback(mappedX, mappedY);
+  }
+  setUpUnitArea2dSelector(svg, 0.5, 0.5, internalCallback);
+}
+
+export function setUp2dSelectorWithLabels(
+  svg: SVGSVGElement,
+  xLabel: HTMLElement,
+  yLabel: HTMLElement,
+  xRange: Pair<number>,
+  yRange: Pair<number>,
+  callback: (x: number, y: number) => void
+): void {
+  function internalCallback(x: number, y: number): void {
+    xLabel.textContent = x.toFixed(2);
+    yLabel.textContent = y.toFixed(2);
+    callback(x, y);
+  }
+  setUp2dSelector(svg, xRange, yRange, internalCallback);
 }

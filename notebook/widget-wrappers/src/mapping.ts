@@ -1,7 +1,7 @@
 import pica from 'pica';
 import { sizeRange, hueRange } from 'widgets/constants';
-import { setUpDecoding as setUpDecodingInternal } from 'widgets/decoding';
 import { encodeGrid, makeStandardGrid } from 'widgets/grid';
+import { setUpMapping as setUpMappingInternal } from 'widgets/mapping';
 import { loadImage } from 'widgets/util';
 
 import { makeGuardedDecode } from './decode';
@@ -10,16 +10,16 @@ import { getPreviousElementSibling } from './util';
 
 /* eslint-disable no-var */
 declare var faceImgUrl: string;
-var settingUpDecoding = false;
-var decodingContainer = getPreviousElementSibling() as HTMLDivElement;
+var mappingContainer = getPreviousElementSibling() as HTMLDivElement;
+var settingUpMapping = false;
 /* eslint-enable no-var */
 
-async function setUpDecoding(): Promise<void> {
-  if (settingUpDecoding) {
-    console.warn('Decoding setup is already in progress.');
+async function setUpMapping(): Promise<void> {
+  if (settingUpMapping) {
+    console.warn('Mapping setup is already in progress.');
     return;
   }
-  settingUpDecoding = true;
+  settingUpMapping = true;
   const encode = await makeGuardedEncode();
   const decode = await makeGuardedDecode();
 
@@ -30,15 +30,17 @@ async function setUpDecoding(): Promise<void> {
   const img = await loadImage(faceImgUrl);
   const zGrid = await encodeGrid(picaInstance, img, encode, alphaGrid);
 
-  setUpDecodingInternal(decode, zGrid, decodingContainer);
-  settingUpDecoding = false;
+  await setUpMappingInternal(
+    encode, decode, picaInstance, faceImgUrl, alphaGrid, zGrid, mappingContainer
+  );
+  settingUpMapping = false;
 }
 
-setUpDecoding().catch((error: unknown) => {
-  console.error('Error setting up decoding:', error);
+setUpMapping().catch((error: unknown) => {
+  console.error('Error setting up mapping widget:', error);
   let msg = 'Unknown error';
   if (error instanceof Error) {
     msg = error.message;
   }
-  decodingContainer.innerHTML = `<p>Error setting up decoding widget: ${msg}</p>`;
+  mappingContainer.innerHTML = `<p>Error setting up mapping widget: ${msg}</p>`;
 });

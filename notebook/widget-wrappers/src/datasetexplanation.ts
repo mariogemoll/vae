@@ -1,16 +1,25 @@
 import pica from 'pica';
+import { sizeRange, hueRange } from 'widgets/constants';
 import { setUpDatasetExplanation } from 'widgets/datasetexplanation';
+import { makeStandardGrid } from 'widgets/grid';
 
 import { getPreviousElementSibling } from './util';
-import faceImg from '../../../misc/face.png';
+
+/* eslint-disable no-var */
+declare var faceImgUrl: string;
+var datasetExplanationContainer = getPreviousElementSibling() as HTMLDivElement;
+/* eslint-enable no-var */
 
 setUpDatasetExplanation(
   pica(),
-  faceImg as string,
-  getPreviousElementSibling() as HTMLDivElement
-).then(() => {
-  console.log('Dataset explanation setup complete.');
-}).catch((error: unknown) => {
-  const msg = error instanceof Error ? error.message : String(error);
-  console.error('Error setting up dataset explanation:', msg);
+  faceImgUrl,
+  makeStandardGrid(sizeRange, hueRange),
+  datasetExplanationContainer
+).catch((error: unknown) => {
+  console.error('Error setting up dataset explanation widget:', error);
+  let msg = 'Unknown error';
+  if (error instanceof Error) {
+    msg = error.message;
+  }
+  datasetExplanationContainer.innerHTML = `Error setting up dataset explanation widget: ${msg}`;
 });

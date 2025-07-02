@@ -1,9 +1,13 @@
 import * as ort from 'onnxruntime-web';
 
+import { zRange } from './constants';
 import { drawImage } from './drawimage';
+import { drawGrid } from './grid';
 import { getStandardGaussianHeatmap } from './standardgaussianheatmap';
-import { setUp2dSelector } from './twodselector';
-import { el, map01ToRange } from './util';
+import { setUp2dSelectorWithLabels } from './twodselector';
+import type { OrtFunction } from './types/ortfunction';
+import type { Pair } from './types/pair';
+import { el } from './util';
 
 function addStandardGaussianHeatmap(svg: SVGSVGElement): void {
   const width = 200; // Width of the heatmap
@@ -21,8 +25,7 @@ function addStandardGaussianHeatmap(svg: SVGSVGElement): void {
 }
 
 export function setUpDecoding(
-  box: HTMLDivElement,
-  decode: (zTensor: ort.Tensor) => Promise<ort.InferenceSession.ReturnType>
+  decode: OrtFunction, zGrid: Pair<number>[][], box: HTMLDivElement
 ): void {
   const zSvg = el(box, 'svg.z-space') as SVGSVGElement;
   const reconCanvas = el(box, 'canvas.reconstruction') as HTMLCanvasElement;
@@ -36,16 +39,13 @@ export function setUpDecoding(
     throw new Error('Failed to get 2D context for reconstruction canvas');
   }
 
+  drawGrid(zSvg, [zRange, zRange], 'grey', zGrid);
 
   let working = false;
-  setUp2dSelector(zSvg, (x, y) => {
+  setUp2dSelectorWithLabels(zSvg, z0Span, z1Span, zRange, zRange, (z0, z1) => {
     if (working) { return; } // Prevent multiple simultaneous renders
     working = true;
     (async(): Promise<void> => {
-      const z0 = map01ToRange([-3, 3], x);
-      const z1 = map01ToRange([-3, 3], y);
-      z0Span.textContent = z0.toFixed(2);
-      z1Span.textContent = z1.toFixed(2);
       const zArray = [z0, z1];
       const tensor = new ort.Tensor('float32', new Float32Array(zArray), [
         1, zArray.length
@@ -57,4 +57,6 @@ export function setUpDecoding(
       console.error('Error decoding:', error);
     });
   });
+
+
 }

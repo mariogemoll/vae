@@ -2,22 +2,21 @@ import { setUpDatasetVisualization } from 'widgets/datasetvisualization';
 
 import { getPreviousElementSibling } from './util';
 
-// Global variables injected by Python
-declare let trainsetX: number[];
-declare let trainsetY: number[];
-declare let valsetX: number[];
-declare let valsetY: number[];
-declare let trainsetImagesBase64: string;
-declare let valsetImagesBase64: string;
-
-const pes = getPreviousElementSibling();
+/* eslint-disable no-var */
+declare var datasetVisualizationTrainsetX: number[];
+declare var datasetVisualizationTrainsetY: number[];
+declare var datasetVisualizationValsetX: number[];
+declare var datasetVisualizationValsetY: number[];
+declare var datasetVisualizationTrainsetImagesBase64: string;
+declare var datasetVisualizationValsetImagesBase64: string;
+/* eslint-enable no-var */
 
 setUpDatasetVisualization(
-    pes as HTMLDivElement,
-    trainsetX,
-    trainsetY,
-    valsetX,
-    valsetY,
-    trainsetImagesBase64,
-    valsetImagesBase64
+    getPreviousElementSibling() as HTMLDivElement,
+    datasetVisualizationTrainsetX,
+    datasetVisualizationTrainsetY,
+    datasetVisualizationValsetX,
+    datasetVisualizationValsetY,
+    datasetVisualizationTrainsetImagesBase64,
+    datasetVisualizationValsetImagesBase64
 );

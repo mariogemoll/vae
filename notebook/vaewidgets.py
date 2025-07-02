@@ -20,6 +20,12 @@ def get_html_and_js(label):
     return html, js
 
 
+def get_face_img_base64_url():
+    with open("../misc/face.png", "rb") as f:
+        face_img_base64 = b64encode(f.read()).decode("ascii")
+    return f"data:image/png;base64,{face_img_base64}"
+
+
 def widget(html, js):
     return HTML(
         f"""
@@ -31,7 +37,14 @@ def widget(html, js):
 
 def dataset_explanation():
     html, js = get_html_and_js("datasetexplanation")
-    return widget(html, js)
+    face_img_base64_url = get_face_img_base64_url()
+    return widget(
+        html,
+        f"""
+        var faceImgUrl = '{face_img_base64_url}';
+        {js}
+    """,
+    )
 
 
 class AreaSelectionWidget(anywidget.AnyWidget):
@@ -53,26 +66,40 @@ def dataset_visualization(trainset_coords, valset_coords, trainset, valset):
     return widget(
         html,
         f"""
-        var trainsetX = [{trainset_coords_x}];
-        var trainsetY = [{trainset_coords_y}];
-        var valsetX = [{valset_coords_x}];
-        var valsetY = [{valset_coords_y}];
-        var trainsetImagesBase64 = '{trainset_images_base64}';
-        var valsetImagesBase64 = '{valset_images_base64}';
+        var datasetVisualizationTrainsetX = [{trainset_coords_x}];
+        var datasetVisualizationTrainsetY = [{trainset_coords_y}];
+        var datasetVisualizationValsetX = [{valset_coords_x}];
+        var datasetVisualizationValsetY = [{valset_coords_y}];
+        var datasetVisualizationTrainsetImagesBase64 = '{trainset_images_base64}';
+        var datasetVisualizationValsetImagesBase64 = '{valset_images_base64}';
         {js}
     """,
     )
 
 
-def decoding(decoder_base64):
-    """
-    Creates a widget for generating images using the VAE decoder.
-    """
-    html, js = get_html_and_js("decoding")
+def mapping(encoder_base64, decoder_base64):
+    html, js = get_html_and_js("mapping")
+    face_img_base64_url = get_face_img_base64_url()
     return widget(
         html,
         f"""
+        var encoderBase64 = '{encoder_base64}';
         var decoderBase64 = '{decoder_base64}';
+        var faceImgUrl = '{face_img_base64_url}';
+        {js}
+    """,
+    )
+
+
+def decoding(encoder_base64, decoder_base64):
+    html, js = get_html_and_js("decoding")
+    face_img_base64_url = get_face_img_base64_url()
+    return widget(
+        html,
+        f"""
+        var encoderBase64 = '{encoder_base64}';
+        var decoderBase64 = '{decoder_base64}';
+        var faceImgUrl = '{face_img_base64_url}';
         {js}
     """,
     )

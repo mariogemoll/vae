@@ -60,3 +60,7 @@ jobs:
     - name: "Widget wrappers: Run ESLint"
       working-directory: notebook/widget-wrappers
       run: npx eslint src
+
+    - name: "Widget wrappers: Compile TypeScript"
+      working-directory: notebook/widget-wrappers
+      run: npx tsc

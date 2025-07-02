@@ -13,7 +13,7 @@ image_width = image_surface.get_width()
 image_height = image_surface.get_height()
 
 
-def get_image(radius, hue, sidelength):
+def get_image(size, hue, sidelength):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, sidelength, sidelength)
     ctx = cairo.Context(surface)
 
@@ -23,7 +23,7 @@ def get_image(radius, hue, sidelength):
     ctx.paint()
 
     # Scale and center image
-    scale = radius * sidelength / max(image_width, image_height)
+    scale = size * sidelength / max(image_width, image_height)
     ctx.translate(sidelength / 2, sidelength / 2)
     ctx.scale(scale, scale)
     ctx.translate(-image_width / 2, -image_height / 2)
@@ -47,7 +47,7 @@ def get_image(radius, hue, sidelength):
 
 def get_images(sidelength, coords):
     data = np.zeros((len(coords), 3, sidelength, sidelength), dtype=np.uint8)
-    for i, (radius, hue) in enumerate(tqdm(coords)):
+    for i, (size, hue) in enumerate(tqdm(coords)):
         # Convert HSV to RGB
-        data[i] = get_image(radius, hue, sidelength)
+        data[i] = get_image(size, hue, sidelength)
     return data

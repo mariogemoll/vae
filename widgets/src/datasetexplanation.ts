@@ -1,11 +1,13 @@
 import { sizeRange, hueRange } from './constants.js';
 import { renderSample } from './dataset.js';
-import { setUp2dSelector } from './twodselector.js';
-import { el, loadImage, map01ToRange } from './util.js';
-
+import { drawGrid } from './grid.js';
+import { setUp2dSelectorWithLabels } from './twodselector.js';
+import type { Pair } from './types/pair.js';
+import { el, loadImage } from './util.js';
 
 export async function setUpDatasetExplanation(
-  picaInstance: pica.Pica, faceImgUrl: string, box: HTMLDivElement): Promise<void> {
+  picaInstance: pica.Pica, faceImgUrl: string, alphaGrid: Pair<number>[][], box: HTMLDivElement
+): Promise<void> {
   try {
     const alphaSvg: SVGSVGElement = el(box, 'svg.alpha-space') as SVGSVGElement;
     const imgCanvas: HTMLCanvasElement = el(box, 'canvas.pic') as HTMLCanvasElement;
@@ -16,16 +18,13 @@ export async function setUpDatasetExplanation(
     hiresCanvas.height = 128;
     const img = await loadImage(faceImgUrl);
 
-    let working = false;
+    drawGrid(alphaSvg, [sizeRange,  hueRange], 'grey', alphaGrid);
 
-    setUp2dSelector(alphaSvg, (x, y) => {
+    let working = false;
+    setUp2dSelectorWithLabels(alphaSvg, sizeSpan, hueSpan, sizeRange, hueRange, (size, hue) => {
       if (working) {return;} // Prevent multiple simultaneous renders
       working = true;
       (async(): Promise<void> => {
-        const size = map01ToRange(sizeRange, x);
-        const hue = map01ToRange(hueRange, y);
-        sizeSpan.textContent = size.toFixed(2);
-        hueSpan.textContent = hue.toFixed(2);
         await renderSample(picaInstance, hiresCanvas, imgCanvas, img, size, hue);
         working = false;
       })().catch((error: unknown) => {
