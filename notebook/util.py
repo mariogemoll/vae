@@ -1,5 +1,10 @@
+import base64
+import os
+
 import matplotlib.pyplot as plt
 import torch
+
+from constants import latent_dim
 
 
 # function to map value from [0, 1] to the specified range
@@ -49,3 +54,84 @@ def plot_losses(train_losses, val_losses):
     ax.plot(val_losses, label="Validation loss", color="orange")
     ax.legend()
     plt.tight_layout()
+
+
+def read_as_base64(file_path):
+    """
+    Reads a file and returns its content as a base64 encoded string.
+
+    Args:
+        file_path (str): Path to the file to be read.
+
+    Returns:
+        str: Base64 encoded content of the file.
+    """
+    with open(file_path, "rb") as file:
+        return base64.b64encode(file.read()).decode("ascii")
+
+
+def random_string(length=10):
+    """
+    Generates a random string of fixed length.
+
+    Args:
+        length (int): Length of the random string to be generated.
+
+    Returns:
+        str: Randomly generated string.
+    """
+    import random
+    import string
+
+    letters = string.ascii_letters + string.digits
+    return "".join(random.choice(letters) for _ in range(length))
+
+
+def onnx_export(vae):
+    """
+    Exports the VAE encoder and decoder to ONNX format.
+    """
+
+    encoder_path = "/tmp/encoder_" + random_string() + ".onnx"
+    decoder_path = "/tmp/decoder_" + random_string() + ".onnx"
+
+    # Dummy image input
+    encoder_dummy_input = torch.randn(1, 3, 32, 32)
+
+    # Export to ONNX
+    torch.onnx.export(
+        vae.encoder,
+        encoder_dummy_input,
+        encoder_path,
+        input_names=["image"],
+        output_names=["mu", "logvar"],
+        dynamic_axes={
+            "image": {0: "batch_size"},
+            "mu": {0: "batch_size"},
+            "logvar": {0: "batch_size"},
+        },
+        opset_version=14,
+    )
+
+    # Dummy latent input
+    decoder_dummy_input = torch.randn(1, latent_dim)
+
+    # Export to ONNX
+    torch.onnx.export(
+        vae.decoder,
+        decoder_dummy_input,
+        decoder_path,
+        input_names=["z"],
+        output_names=["reconstruction"],
+        dynamic_axes={"z": {0: "batch_size"}, "reconstruction": {0: "batch_size"}},
+        opset_version=14,
+    )
+
+    encoder_base64 = read_as_base64(encoder_path)
+    decoder_base64 = read_as_base64(decoder_path)
+
+    # Clean up temporary files
+    os.remove(encoder_path)
+    os.remove(decoder_path)
+
+    return encoder_base64, decoder_base64

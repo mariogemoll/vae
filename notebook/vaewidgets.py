@@ -62,3 +62,17 @@ def dataset_visualization(trainset_coords, valset_coords, trainset, valset):
         {js}
     """,
     )
+
+
+def decoding(decoder_base64):
+    """
+    Creates a widget for generating images using the VAE decoder.
+    """
+    html, js = get_html_and_js("decoding")
+    return widget(
+        html,
+        f"""
+        var decoderBase64 = '{decoder_base64}';
+        {js}
+    """,
+    )

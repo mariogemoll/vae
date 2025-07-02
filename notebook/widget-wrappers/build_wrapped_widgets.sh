@@ -10,3 +10,5 @@ npx esbuild ../../widgets/src/areaselection.ts --outfile=dist/areaselection.js
 
 npx esbuild src/datasetvisualization.ts --bundle --format=iife --loader:.png=dataurl \
     --outfile=dist/datasetvisualization.js
+
+npx esbuild src/decoding.ts --bundle --format=iife --outfile=dist/decoding.js

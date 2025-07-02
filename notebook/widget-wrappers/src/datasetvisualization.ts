@@ -3,12 +3,12 @@ import { setUpDatasetVisualization } from 'widgets/datasetvisualization';
 import { getPreviousElementSibling } from './util';
 
 // Global variables injected by Python
-declare var trainsetX: number[];
-declare var trainsetY: number[];
-declare var valsetX: number[];
-declare var valsetY: number[];
-declare var trainsetImagesBase64: string;
-declare var valsetImagesBase64: string;
+declare let trainsetX: number[];
+declare let trainsetY: number[];
+declare let valsetX: number[];
+declare let valsetY: number[];
+declare let trainsetImagesBase64: string;
+declare let valsetImagesBase64: string;
 
 const pes = getPreviousElementSibling();
 
