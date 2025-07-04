@@ -23,9 +23,9 @@ function setUpUi(
   // Draw scatter points
   function drawScatter(scatterCtx: CanvasRenderingContext2D, highlightIndex: number | null,
     xRange: Pair<number>, yRange: Pair<number>): void {
-    scatterCtx.clearRect(0, 0, 400, 400);
-    const scale = 380;
-    const margin = 10;
+    scatterCtx.clearRect(0, 0, 200, 200);
+    const scale = 200;
+    const margin = 0;
 
     // Calculate scaling factors based on the ranges
     const xScale = scale / (xRange[1] - xRange[0]);
@@ -42,7 +42,7 @@ function setUpUi(
 
       scatterCtx.beginPath();
       scatterCtx.arc(px, py, 3, 0, 2 * Math.PI);
-      scatterCtx.fillStyle = allLabels[i] === 'train' ? 'blue' : 'red';
+      scatterCtx.fillStyle = allLabels[i] === 'train' ? '#ccc' : '#999';
       scatterCtx.fill();
     }
 
@@ -55,18 +55,12 @@ function setUpUi(
         const py = margin + (1 - (y - yRange[0]) / (yRange[1] - yRange[0])) * scale;
 
         scatterCtx.beginPath();
-        scatterCtx.arc(px, py, 6, 0, 2 * Math.PI);
-        scatterCtx.strokeStyle = 'yellow';
+        scatterCtx.arc(px, py, 6, 0, 3 * Math.PI);
+        scatterCtx.strokeStyle = 'red';
         scatterCtx.lineWidth = 2;
         scatterCtx.stroke();
       }
     }
-
-    // Draw axes labels
-    scatterCtx.fillStyle = 'black';
-    scatterCtx.font = '12px Arial';
-    scatterCtx.fillText(`X: [${xRange[0].toFixed(2)}, ${xRange[1].toFixed(2)}]`, 10, 390);
-    scatterCtx.fillText(`Y: [${yRange[0].toFixed(2)}, ${yRange[1].toFixed(2)}]`, 300, 390);
 
     if (highlightIndex !== null) {
       sizeValueSpan.textContent = allCoords[highlightIndex][0].toFixed(2);
@@ -84,8 +78,8 @@ function setUpUi(
     const mx = event.clientX - rect.left;
     const my = event.clientY - rect.top;
 
-    const scale = 380;
-    const margin = 10;
+    const scale = 200;
+    const margin = 0;
     const xScale = scale / (sizeRange[1] - sizeRange[0]);
 
     let minDist = Infinity;
@@ -192,7 +186,6 @@ export function setUpDatasetVisualization(
       allImages.push(flatImage);
     }
   }
-
 
   setUpUi(
     alphaCanvas, imgCanvas, sizeSpan, hueSpan, allCoords, allImages,
