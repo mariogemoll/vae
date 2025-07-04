@@ -1,23 +1,84 @@
 import type { RenderProps, Render } from '@anywidget/types';
 
+type Cell = HTMLTableCellElement;
+
+// function that maps from [0, 1] to range [a, b]
+export function map01ToRange(range: [number, number], value: number): number {
+  if (value< 0) {
+    throw new Error(`Value ${value.toFixed(3)} is less than 0`);
+  }
+  if (value > 1) {
+    throw new Error(`Value ${value.toFixed(3)} is greater than 1`);
+  }
+  const [min, max] = range;
+  const rangeSize = max - min;
+  const amount = value * rangeSize;
+  const result = min + amount;
+  return result;
+}
+
 interface AreaSelectionModel {
   x: number;
   y: number;
   width: number;
   height: number;
+  xRange: [number, number];
+  yRange: [number, number];
+  xLabel: string;
+  yLabel: string;
 }
 
-export const render: Render<AreaSelectionModel> = (props: RenderProps<AreaSelectionModel>) => {
+function addFromToRow(
+  table: HTMLTableElement, label: string
+): [Cell, Cell] {
+  const row = table.insertRow();
+  row.insertCell().innerText = label + ':';
+  const fromCell = row.insertCell();
+  fromCell.style.textAlign = 'right';
+  row.insertCell().innerHTML = '&ndash;';
+  const toCell = row.insertCell();
+  toCell.style.textAlign = 'right';
+  return [fromCell, toCell];
+}
+
+function addInfo(container: HTMLElement): [Cell, Cell, Cell, Cell, Cell] {
+  const div = document.createElement('div');
+  container.appendChild(div);
+
+  const table = document.createElement('table');
+  table.style.tableLayout = 'fixed';
+  div.appendChild(table);
+
+  const [sizeFromTd, sizeToTd] = addFromToRow(table, 'Size');
+  const [hueFromTd, hueToTd] = addFromToRow(table, 'Hue');
+
+  sizeFromTd.style.width = '26px';
+  sizeToTd.style.width = '26px';
+
+  const areaRow = table.insertRow();
+  areaRow.insertCell().innerText = 'Area:';
+  const areaTd = areaRow.insertCell();
+  areaTd.style.textAlign = 'right';
+  areaTd.colSpan = 3;
+
+  return [sizeFromTd, sizeToTd, hueFromTd, hueToTd, areaTd];
+}
+
+const render: Render<AreaSelectionModel> = (props: RenderProps<AreaSelectionModel>) => {
+
+  const container = document.createElement('div');
+  container.style.display = 'flex';
+  container.style.flexDirection = 'row';
+  props.el.appendChild(container);
 
   // Add canvas
   const canvas = document.createElement('canvas');
-  canvas.width = 500;
-  canvas.height = 500;
+  canvas.width = 200;
+  canvas.height = 200;
   canvas.style.border = '1px solid black';
-  props.el.appendChild(canvas);
+  container.appendChild(canvas);
 
-  const info = document.createElement('p');
-  props.el.appendChild(info);
+  const [sizeFromTd, sizeToTd, hueFromTd, hueToTd, areaTd] = addInfo(container);
 
   const ctx = canvas.getContext('2d');
   if (!ctx) {
@@ -45,11 +106,14 @@ export const render: Render<AreaSelectionModel> = (props: RenderProps<AreaSelect
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Main rectangle
-    ctx.strokeStyle = 'blue';
+    ctx.fillStyle = '#eee';
+    ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+
+    ctx.strokeStyle = '#ccc';
     ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
 
     // Resizer handle
-    ctx.fillStyle = 'blue';
+    ctx.fillStyle = '#ccc';
     ctx.fillRect(
       rect.x + rect.w - handleSize, rect.y + rect.h - handleSize, handleSize, handleSize);
   }
@@ -72,11 +136,14 @@ export const render: Render<AreaSelectionModel> = (props: RenderProps<AreaSelect
       width: rect.w / canvas.width,
       height: rect.h / canvas.height
     };
-    const xStr = r.x.toFixed(2);
-    const yStr = r.y.toFixed(2);
-    const widthStr = r.width.toFixed(2);
-    const heightStr = r.height.toFixed(2);
-    info.textContent = `x=${xStr}, y=${yStr}, w=${widthStr}, h=${heightStr}`;
+    const xRange = props.model.get('xRange');
+    const yRange = props.model.get('yRange');
+    const areaPercent = Math.round(r.width * r.height * 100);
+    sizeFromTd.innerText = map01ToRange(xRange, r.x).toFixed(2);
+    sizeToTd.innerText = map01ToRange(xRange, r.x + r.width).toFixed(2);
+    hueFromTd.innerText = map01ToRange(yRange, r.y).toFixed(2);
+    hueToTd.innerText = map01ToRange(yRange, r.y + r.height).toFixed(2);
+    areaTd.innerText = `${areaPercent.toString()}%`;
   }
 
   canvas.addEventListener('mousedown', e => {
@@ -140,3 +207,5 @@ export const render: Render<AreaSelectionModel> = (props: RenderProps<AreaSelect
   handleChange(); // initial
 
 };
+
+export default { render };

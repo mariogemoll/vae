@@ -50,7 +50,6 @@ export default tseslint.config(
         'newlines-between': 'always',
         alphabetize: { order: 'asc', caseInsensitive: true },
       }],
-      'import/no-default-export': 'error',
       'import/no-relative-packages': 'error',
 
       'no-duplicate-imports': 'error',
