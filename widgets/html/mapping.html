@@ -1,38 +1,36 @@
-<div
-    style=" display: grid; grid-template-columns: repeat(4, 160px); grid-template-rows: repeat(3); position: relative;">
-    <svg class="alpha-space" width="128" height="128" viewBox="0 0 128 128"
-        style="cursor: crosshair; grid-row: 2; grid-column: 1; border: 1px solid black;"></svg>
+<div style="width: 640px; height: 300px; position: relative;">
+
+    <svg class="alpha-space" width="200" height="200" viewBox="0 0 200 200"
+        style="position: absolute; border: 1px solid black; cursor: crosshair;"></svg>
     <canvas class="pic-x" width="32" height="32"
-        style="width: 128px; height: 128px; image-rendering: pixelated; grid-row: 2; grid-column: 2; border: 1px solid black;"></canvas>
-    <div style="grid-row: 3; grid-column: 1">
-        <table style="table-layout: fixed; width: 140px; border-collapse: collapse; background-color: white;">
-            <tr>
-                <td class="size" style="width: 70px; padding: 0; text-align: left;">Size: <span></span></td>
-                <td class="hue" style="width: 70px; padding: 0; text-align: left;">Hue: <span></span></td>
-            </tr>
-        </table>
-    </div>
-    <svg class="z-space" width="128" height="128" viewBox="0 0 128 128"
-        style="grid-row: 2; grid-column: 3; border: 1px solid black"></svg>
-    <div style="grid-row: 3; grid-column: 3;">
-        <table style="table-layout: fixed; width: 100px; border-collapse: collapse; background-color: white;">
-            <tr style="background-color: white;">
-                <td style="width: 20px; height: 20px; padding: 0"></td>
-                <td style="text-align: center; padding: 0"><span>z<sub>0</sub></span></td>
-                <td style="text-align: center; padding: 0"><span>z<sub>1</sub></span></td>
-            </tr>
-            <tr style="background-color: white;">
-                <td style="text-align: left; height: 20px; padding: 0">μ</td>
-                <td class="z0-mu" style="text-align: right; padding: 0"><span></span></td>
-                <td class="z1-mu" style="text-align: right; padding: 0"><span></span></td>
-            </tr>
-            <tr style="background-color: white;">
-                <td style="text-align: left; height: 20px; padding: 0">σ</td>
-                <td class="z0-std-dev" style="text-align: right; padding: 0"><span></span></td>
-                <td class="z1-std-dev" style="text-align: right; padding: 0"><span></span></td>
-            </tr>
-        </table>
-    </div>
+        style="position: absolute; top: 68px; left: 248px; width: 64px; height: 64px; border: 1px solid black; image-rendering: pixelated;"></canvas>
+    <table
+        style="position: absolute; top: 204px; left: 0; table-layout: fixed; width: 140px; border-collapse: collapse; background-color: white;">
+        <tr>
+            <td class="size" style="width: 70px; padding: 0; text-align: left;">Size: <span></span></td>
+            <td class="hue" style="width: 70px; padding: 0; text-align: left;">Hue: <span></span></td>
+        </tr>
+    </table>
+    <svg class="z-space" width="200" height="200" viewBox="0 0 200 200"
+        style="position:absolute; top: 0px; left: 360px; border: 1px solid black"></svg>
+    <table
+        style="position: absolute; top: 204px; left: 360px; table-layout: fixed; width: 100px; border-collapse: collapse; background-color: white;">
+        <tr style="background-color: white;">
+            <td style="width: 20px; height: 20px; padding: 0"></td>
+            <td style="text-align: center; padding: 0"><span>z<sub>0</sub></span></td>
+            <td style="text-align: center; padding: 0"><span>z<sub>1</sub></span></td>
+        </tr>
+        <tr style="background-color: white;">
+            <td style="text-align: left; height: 20px; padding: 0">μ</td>
+            <td class="z0-mu" style="text-align: right; padding: 0"><span></span></td>
+            <td class="z1-mu" style="text-align: right; padding: 0"><span></span></td>
+        </tr>
+        <tr style="background-color: white;">
+            <td style="text-align: left; height: 20px; padding: 0">σ</td>
+            <td class="z0-std-dev" style="text-align: right; padding: 0"><span></span></td>
+            <td class="z1-std-dev" style="text-align: right; padding: 0"><span></span></td>
+        </tr>
+    </table>
     <canvas class="reconstruction" width="32" height="32"
-        style="width: 128px; height: 128px; border: 1px solid black; image-rendering: pixelated; grid-row: 2; grid-column: 4"></canvas>
+        style="position: absolute; left: 606px; top: 68px; width: 64px; height: 64px; border: 1px solid black; image-rendering: pixelated;"></canvas>
 </div>
