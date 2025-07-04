@@ -49,10 +49,35 @@ def dataset_explanation():
 
 class AreaSelectionWidget(anywidget.AnyWidget):
     _esm = "widget-wrappers/dist/areaselection.js"
-    x = traitlets.Float(0.1).tag(sync=True)
-    y = traitlets.Float(0.1).tag(sync=True)
-    width = traitlets.Float(0.3).tag(sync=True)
-    height = traitlets.Float(0.8).tag(sync=True)
+    xRange = traitlets.List().tag(sync=True)
+    yRange = traitlets.List().tag(sync=True)
+    xLabel = traitlets.Unicode().tag(sync=True)
+    yLabel = traitlets.Unicode().tag(sync=True)
+    x = traitlets.Float().tag(sync=True)
+    y = traitlets.Float().tag(sync=True)
+    width = traitlets.Float().tag(sync=True)
+    height = traitlets.Float().tag(sync=True)
+
+    def __init__(
+        self,
+        x_range,
+        y_range,
+        x_label,
+        y_label,
+        initial_x,
+        initial_y,
+        initial_width,
+        initial_height,
+    ):
+        super().__init__()
+        self.xRange = x_range
+        self.yRange = y_range
+        self.xLabel = x_label
+        self.yLabel = y_label
+        self.x = initial_x
+        self.y = initial_y
+        self.width = initial_width
+        self.height = initial_height
 
 
 def dataset_visualization(trainset_coords, valset_coords, trainset, valset):
