@@ -5,7 +5,8 @@ import { sizeRange, hueRange, zRange } from './constants';
 import { renderSample } from './dataset';
 import { drawImage } from './drawimage';
 import { drawGrid } from './grid';
-import { setUpRemoteControlledDotWithLabels } from './rcdot';
+import { setUpRemoteControlledDot } from './rcdot';
+import { addFrame } from './svg';
 import { setUp2dSelectorWithLabels } from './twodselector';
 import type { OrtFunction } from './types/ortfunction';
 import { type Pair } from './types/pair';
@@ -13,6 +14,8 @@ import { addMarginToRange, loadImage, el, writePixelValues, mapPair, midRangeVal
 
 const extendedSizeRange: Pair<number> = addMarginToRange(sizeRange, 0.2);
 const extendedHueRange: Pair<number> = addMarginToRange(hueRange, 0.2);
+
+const stdDevMultiplier = 3.0; // Multiplier for standard deviation, can be adjusted
 
 async function encodeImg(
   encode: OrtFunction,
@@ -58,22 +61,24 @@ export async function setUpMapping(
   const reconCanvas = el(box, '.reconstruction') as HTMLCanvasElement;
   const reconCtx = reconCanvas.getContext('2d');
 
+  const margins = { top: 10, right: 40, bottom: 40, left: 40 };
   const faceImg = await loadImage(faceImgUrl);
 
   if (!reconCtx) {
     throw new Error('Failed to get 2D context for reconstruction canvas');
   }
 
-  const margin = { top: 0, right: 0, bottom: 0, left: 0 };
+  drawGrid(alphaSvg, margins, [extendedSizeRange, extendedHueRange], 'grey', alphaGrid);
 
-  drawGrid(alphaSvg, margin, [extendedSizeRange, extendedHueRange], 'grey', alphaGrid);
-
-  drawGrid(zSvg, margin, [zRange, zRange], 'grey', zGrid);
+  drawGrid(zSvg, margins, [zRange, zRange], 'grey', zGrid);
 
   // TODO Calculate initial mu and stdDev values
-
-  const updateZ = setUpRemoteControlledDotWithLabels(
-    zSvg, [z0MuCell, z1MuCell], [z0StdDevCell, z1StdDevCell], [zRange, zRange], [.5, .5], [1.0, 1.0]
+  const updateZ = setUpRemoteControlledDot(
+    zSvg,
+    margins,
+    [zRange, zRange],
+    [.5, .5],
+    [1.0, 1.0]
   );
 
   const hiresCanvas = document.createElement('canvas');
@@ -82,9 +87,14 @@ export async function setUpMapping(
 
   const singleImgArr = new Float32Array(1 * 3 * 32 * 32); // 3 channels, 32x32 pixels
   let working = false;
+
+  addFrame(alphaSvg, margins, extendedSizeRange, extendedHueRange, 8);
+
+  addFrame(zSvg, margins, zRange, zRange, 5);
+
   setUp2dSelectorWithLabels(
     alphaSvg,
-    margin,
+    margins,
     extendedSizeRange,
     extendedHueRange,
     sizeSpan,
@@ -99,7 +109,12 @@ export async function setUpMapping(
       (async(): Promise<void> => {
         await renderSample(picaInstance, hiresCanvas, xCanvas, faceImg, size, hue);
         const [mu, logvar] = await encodeImg(encode, xCanvas, singleImgArr);
-        updateZ(mu, mapPair(logVarToStdDev, logvar));
+        const stdDev = mapPair(logVarToStdDev, logvar);
+        z0MuCell.textContent = mu[0].toFixed(2);
+        z1MuCell.textContent = mu[1].toFixed(2);
+        z0StdDevCell.textContent = stdDev[0].toFixed(2);
+        z1StdDevCell.textContent = stdDev[1].toFixed(2);
+        updateZ(mu, mapPair((x) => x * stdDevMultiplier, stdDev));
         const zTensor = new ort.Tensor('float32', new Float32Array(mu), [
           1, mu.length
         ]);

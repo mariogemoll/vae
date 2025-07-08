@@ -1,6 +1,7 @@
 import { sizeRange, hueRange } from './constants.js';
 import { renderSample } from './dataset.js';
 import { drawGrid } from './grid.js';
+import { addFrame } from './svg.js';
 import { setUp2dSelectorWithLabels } from './twodselector.js';
 import type { Pair } from './types/pair.js';
 import { addErrorMessage, el, loadImage, midRangeValue } from './util.js';
@@ -22,6 +23,8 @@ export async function setUpDatasetExplanation(
     drawGrid(alphaSvg, margins, [sizeRange, hueRange], 'grey', alphaGrid);
 
     let working = false;
+
+    addFrame(alphaSvg, margins, sizeRange, hueRange, 6);
 
     setUp2dSelectorWithLabels(
       alphaSvg,

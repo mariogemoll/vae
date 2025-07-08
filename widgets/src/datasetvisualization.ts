@@ -26,7 +26,7 @@ function setUpUi(
   function drawScatter(scatterCtx: CanvasRenderingContext2D, highlightIndex: number | null,
     xDomain: Pair<number>, yDomain: Pair<number>): void {
     scatterCtx.clearRect(0, 0, 280, 250);
-    addFrame(scatterCanvas, margins, sizeRange, hueRange);
+    addFrame(scatterCanvas, margins, sizeRange, hueRange, 6);
     const xRange: Pair<number> = [margins.left, 280 - margins.right];
     const yRange: Pair<number> = [250 - margins.bottom, margins.top];
 

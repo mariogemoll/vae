@@ -1,4 +1,3 @@
-import { addFrame } from './svg.js';
 import type { Margins } from './types/margins.js';
 import type { Pair } from './types/pair';
 import { getAttribute, mapRange } from './util.js';
@@ -12,8 +11,6 @@ export function setUp2dSelector(
   initialY: number,
   callback?: (x: number, y: number) => void
 ): void {
-
-  addFrame(svg, margins, xRange, yRange);
 
   const width = svg.clientWidth;
   const height = svg.clientHeight;

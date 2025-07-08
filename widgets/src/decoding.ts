@@ -4,6 +4,7 @@ import { zRange } from './constants';
 import { drawImage } from './drawimage';
 import { drawGrid } from './grid';
 import { getStandardGaussianHeatmap } from './standardgaussianheatmap';
+import { addFrame } from './svg';
 import { setUp2dSelectorWithLabels } from './twodselector';
 import type { OrtFunction } from './types/ortfunction';
 import type { Pair } from './types/pair';
@@ -42,6 +43,8 @@ export function setUpDecoding(
   const margin = { top: 0, right: 0, bottom: 0, left: 0 };
 
   drawGrid(zSvg, margin, [zRange, zRange], 'grey', zGrid);
+
+  addFrame(zSvg, margin, zRange, zRange, 5);
 
   let working = false;
   setUp2dSelectorWithLabels(

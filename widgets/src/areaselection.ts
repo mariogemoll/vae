@@ -353,7 +353,7 @@ const render: Render<AreaSelectionModel> = (props: RenderProps<AreaSelectionMode
   svg.setAttribute('width', '280');
   svg.setAttribute('height', '250');
   const margins: Margins = { top: 10, right: 40, bottom: 40, left: 40 };
-  addFrame(svg, margins, xRange, yRange);
+  addFrame(svg, margins, xRange, yRange, 6);
   container.appendChild(svg);
 
   const initialX = props.model.get('x');

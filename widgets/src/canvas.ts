@@ -91,7 +91,11 @@ function generateTicks(range: [number, number], count = 6): number[] {
 }
 
 export function addFrame(
-  canvas: HTMLCanvasElement, margins: Margins, xRange: Pair<number>, yRange: Pair<number>
+  canvas: HTMLCanvasElement,
+  margins: Margins,
+  xRange: Pair<number>,
+  yRange: Pair<number>,
+  numTicks: number
 ): void {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
@@ -106,7 +110,7 @@ export function addFrame(
 
   // x axis
   addHorizontalLine(ctx, 'black', [margins.left, width - margins.right], height - margins.bottom);
-  const xTicks = generateTicks(xRange);
+  const xTicks = generateTicks(xRange, numTicks);
   xTicks.forEach((tickValue: number) => {
     const x = xScale(tickValue);
     addVerticalLine(ctx, 'black', x, [height - margins.bottom, height - margins.bottom + 6]);

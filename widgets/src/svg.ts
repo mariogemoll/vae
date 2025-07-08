@@ -13,10 +13,6 @@ export function addLine(
   line.setAttribute('stroke', stroke);
   line.setAttribute('stroke-width', '0.5');
   line.setAttribute('stroke-rendering', 'crispEdges');
-  // Uncomment the following line if you want to set a specific stroke color
-  // line.style.stroke = stroke;
-  // line.style.strokeWidth = '0.5';
-  // line.style.stroke
   svg.appendChild(line);
 }
 
@@ -91,7 +87,7 @@ export function addText(
   return text;
 }
 
-function generateTicks(range: [number, number], count = 6): number[] {
+function generateTicks(range: [number, number], count: number): number[] {
   const [min, max] = range;
   const step = (max - min) / (count - 1);
   const tickValues: number[] = [];
@@ -104,10 +100,8 @@ function generateTicks(range: [number, number], count = 6): number[] {
 }
 
 export function addFrame(
-  svg: SVGSVGElement, margins: Margins, xRange: Pair<number>, yRange: Pair<number>
+  svg: SVGSVGElement, margins: Margins, xRange: Pair<number>, yRange: Pair<number>, numTicks: number
 ): void {
-  // const width = svg.clientWidth;
-  // const height = svg.clientHeight;
   const width = parseFloat(getAttribute(svg, 'width'));
   const height = parseFloat(getAttribute(svg, 'height'));
 
@@ -116,7 +110,7 @@ export function addFrame(
 
   // x axis
   addHorizontalLine(svg, 'black', [margins.left, width - margins.right], height - margins.bottom);
-  const xTicks = generateTicks(xRange);
+  const xTicks = generateTicks(xRange, numTicks);
   xTicks.forEach((tickValue: number) => {
     const x = xScale(tickValue);
     addVerticalLine(svg, 'black', x, [height - margins.bottom, height - margins.bottom + 6]);
@@ -126,7 +120,7 @@ export function addFrame(
 
   // y axis
   addVerticalLine(svg, 'black', margins.left, [margins.top, height - margins.bottom]);
-  const yTicks = generateTicks(yRange);
+  const yTicks = generateTicks(yRange, numTicks);
   yTicks.forEach((tickValue: number) => {
     const y = yScale(tickValue);
     addHorizontalLine(svg, 'black', [margins.left - 6, margins.left], y);
