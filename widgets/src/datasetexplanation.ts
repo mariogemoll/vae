@@ -3,7 +3,7 @@ import { renderSample } from './dataset.js';
 import { drawGrid } from './grid.js';
 import { setUp2dSelectorWithLabels } from './twodselector.js';
 import type { Pair } from './types/pair.js';
-import { el, loadImage, midRangeValue } from './util.js';
+import { addErrorMessage, el, loadImage, midRangeValue } from './util.js';
 
 export async function setUpDatasetExplanation(
   picaInstance: pica.Pica, faceImgUrl: string, alphaGrid: Pair<number>[][], box: HTMLDivElement
@@ -49,6 +49,6 @@ export async function setUpDatasetExplanation(
     if (error instanceof Error) {
       msg = error.message;
     }
-    box.innerHTML = `<p>Error setting up dataset explanation: ${msg}</p>`;
+    addErrorMessage(box, `Error setting up dataset explanation widget: ${msg}`);
   }
 }

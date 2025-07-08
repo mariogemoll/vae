@@ -2,7 +2,7 @@ import pica from 'pica';
 import { sizeRange, hueRange } from 'widgets/constants';
 import { setUpDecoding as setUpDecodingInternal } from 'widgets/decoding';
 import { encodeGrid, makeStandardGrid } from 'widgets/grid';
-import { loadImage } from 'widgets/util';
+import { addErrorMessage, loadImage } from 'widgets/util';
 
 import { makeGuardedDecode } from './decode';
 import { makeGuardedEncode } from './encode';
@@ -40,5 +40,5 @@ setUpDecoding().catch((error: unknown) => {
   if (error instanceof Error) {
     msg = error.message;
   }
-  decodingContainer.innerHTML = `<p>Error setting up decoding widget: ${msg}</p>`;
+  addErrorMessage(decodingContainer, `Error setting up decoding widget: ${msg}`);
 });

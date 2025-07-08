@@ -2,7 +2,7 @@ import pica from 'pica';
 import { sizeRange, hueRange } from 'widgets/constants';
 import { encodeGrid, makeStandardGrid } from 'widgets/grid';
 import { setUpMapping as setUpMappingInternal } from 'widgets/mapping';
-import { loadImage } from 'widgets/util';
+import { addErrorMessage, loadImage } from 'widgets/util';
 
 import { makeGuardedDecode } from './decode';
 import { makeGuardedEncode } from './encode';
@@ -42,11 +42,5 @@ setUpMapping().catch((error: unknown) => {
   if (error instanceof Error) {
     msg = error.message;
   }
-  const errorP = document.createElement('p');
-  errorP.textContent = `Error setting up mapping widget: ${msg}`;
-  errorP.style.color = 'red';
-  errorP.style.fontWeight = 'bold';
-  errorP.style.position = 'absolute';
-  errorP.style.bottom = '0';
-  mappingContainer.appendChild(errorP);
+  addErrorMessage(mappingContainer, `Error setting up mapping widget: ${msg}`);
 });

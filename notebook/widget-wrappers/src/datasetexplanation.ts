@@ -2,6 +2,7 @@ import pica from 'pica';
 import { sizeRange, hueRange } from 'widgets/constants';
 import { setUpDatasetExplanation } from 'widgets/datasetexplanation';
 import { makeStandardGrid } from 'widgets/grid';
+import { addErrorMessage } from 'widgets/util';
 
 import { getPreviousElementSibling } from './util';
 
@@ -21,5 +22,8 @@ setUpDatasetExplanation(
   if (error instanceof Error) {
     msg = error.message;
   }
-  datasetExplanationContainer.innerHTML = `Error setting up dataset explanation widget: ${msg}`;
+  addErrorMessage(
+    datasetExplanationContainer,
+    `Error setting up dataset explanation widget: ${msg}`
+  );
 });

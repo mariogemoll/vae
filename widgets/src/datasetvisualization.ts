@@ -2,7 +2,7 @@ import fromBase64 from 'es-arraybuffer-base64/Uint8Array.fromBase64';
 
 import { sizeRange, hueRange } from './constants.js';
 import type { Pair } from './types/pair.js';
-import { el } from './util.js';
+import { addErrorMessage, el } from './util.js';
 
 function setUpUi(
   scatterCanvas: HTMLCanvasElement, imageCanvas: HTMLCanvasElement, sizeValueSpan: HTMLSpanElement,
@@ -34,7 +34,7 @@ function setUpUi(
       const [x, y] = allCoords[i];
 
       // Skip points outside the specified ranges
-      if (x < xRange[0] || x > xRange[1] || y < yRange[0] || y > yRange[1]) {continue;}
+      if (x < xRange[0] || x > xRange[1] || y < yRange[0] || y > yRange[1]) { continue; }
 
       // Map the coordinates to the visible area
       const px = margin + (x - xRange[0]) * xScale;
@@ -89,7 +89,7 @@ function setUpUi(
       const [x, y] = allCoords[i];
 
       // Skip points outside the range
-      if (x < sizeRange[0] || x > sizeRange[1] || y < hueRange[0] || y > hueRange[1]) {continue;}
+      if (x < sizeRange[0] || x > sizeRange[1] || y < hueRange[0] || y > hueRange[1]) { continue; }
 
       const px = margin + (x - sizeRange[0]) * xScale;
       const py = margin + (1 - (y - hueRange[0]) / (hueRange[1] - hueRange[0])) * scale;
@@ -145,50 +145,59 @@ function setUpUi(
 export function setUpDatasetVisualization(
   box: HTMLDivElement, trainsetX: number[], trainsetY: number[], valsetX: number[],
   valsetY: number[], trainsetImagesBase64: string, valsetImagesBase64: string): void {
-  const alphaCanvas: HTMLCanvasElement = el(box, 'canvas.alpha-space') as HTMLCanvasElement;
-  const imgCanvas: HTMLCanvasElement = el(box, 'canvas.pic') as HTMLCanvasElement;
-  const sizeSpan: HTMLSpanElement = el(box, '.size span') as HTMLSpanElement;
-  const hueSpan: HTMLSpanElement = el(box, '.hue span') as HTMLSpanElement;
+  try {
+    const alphaCanvas: HTMLCanvasElement = el(box, 'canvas.alpha-space') as HTMLCanvasElement;
+    const imgCanvas: HTMLCanvasElement = el(box, 'canvas.pic') as HTMLCanvasElement;
+    const sizeSpan: HTMLSpanElement = el(box, '.size span') as HTMLSpanElement;
+    const hueSpan: HTMLSpanElement = el(box, '.hue spsan') as HTMLSpanElement;
 
-  const data: Record<string, { X: number[], Y: number[], images: string }> = {
-    'train': {
-      'X': trainsetX,
-      'Y': trainsetY,
-      'images': trainsetImagesBase64
-    },
-    'val': {
-      'X': valsetX,
-      'Y': valsetY,
-      'images': valsetImagesBase64
+    const data: Record<string, { X: number[], Y: number[], images: string }> = {
+      'train': {
+        'X': trainsetX,
+        'Y': trainsetY,
+        'images': trainsetImagesBase64
+      },
+      'val': {
+        'X': valsetX,
+        'Y': valsetY,
+        'images': valsetImagesBase64
+      }
+    };
+
+    const labels = ['train', 'val'];
+
+
+    const allCoords: Pair<number>[] = [];
+    const allImages: Uint8Array[] = [];
+    const allLabels: string[] = [];
+    for (const label of labels) {
+      const labelSizes = data[label].X;
+      const labelHues = data[label].Y;
+      for (let i = 0; i < labelSizes.length; i++) {
+        const size = labelSizes[i];
+        const hue = labelHues[i];
+        allCoords.push([size, hue]);
+        allLabels.push(label);
+      }
+
+      const imageBytes: Uint8Array = fromBase64(data[label].images);
+      for (let i = 0; i < imageBytes.length; i += 3072) {
+        const rgbBytes = imageBytes.slice(i, i + 3072);
+        const flatImage = new Uint8Array(rgbBytes);
+        allImages.push(flatImage);
+      }
     }
-  };
 
-  const labels = ['train', 'val'];
-
-
-  const allCoords: Pair<number>[] = [];
-  const allImages: Uint8Array[] = [];
-  const allLabels: string[] = [];
-  for (const label of labels) {
-    const labelSizes = data[label].X;
-    const labelHues = data[label].Y;
-    for (let i = 0; i < labelSizes.length; i++) {
-      const size = labelSizes[i];
-      const hue = labelHues[i];
-      allCoords.push([size, hue]);
-      allLabels.push(label);
+    setUpUi(
+      alphaCanvas, imgCanvas, sizeSpan, hueSpan, allCoords, allImages,
+      allLabels
+    );
+  } catch (error: unknown) {
+    console.error('Error setting up dataset visualization:', error);
+    let msg = 'Unknown error';
+    if (error instanceof Error) {
+      msg = error.message;
     }
-
-    const imageBytes: Uint8Array = fromBase64(data[label].images);
-    for (let i = 0; i < imageBytes.length; i += 3072) {
-      const rgbBytes = imageBytes.slice(i, i + 3072);
-      const flatImage = new Uint8Array(rgbBytes);
-      allImages.push(flatImage);
-    }
+    addErrorMessage(box, `Error setting up dataset visualization: ${msg}`);
   }
-
-  setUpUi(
-    alphaCanvas, imgCanvas, sizeSpan, hueSpan, allCoords, allImages,
-    allLabels
-  );
 }
