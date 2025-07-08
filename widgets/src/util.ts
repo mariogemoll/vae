@@ -22,7 +22,8 @@ export function mapRange(fromRange: Pair<number>, toRange: Pair<number>, value: 
 }
 
 export function mapRangeTo01(range: Pair<number>, value: number): number {
-  return mapRange(range, [0, 1], value);
+  const mapped = mapRange(range, [0, 1], value);
+  return Math.max(0, Math.min(1, mapped)); // Clamp to [0, 1]
 }
 
 export function midRangeValue(range: Pair<number>): number {

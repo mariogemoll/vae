@@ -11,21 +11,21 @@ export async function setUpDatasetExplanation(
   try {
     const alphaSvg: SVGSVGElement = el(box, 'svg.alpha-space') as SVGSVGElement;
     const imgCanvas: HTMLCanvasElement = el(box, 'canvas.pic') as HTMLCanvasElement;
-    const sizeSpan: HTMLSpanElement = el(box, '.dataset-explanation-size span') as HTMLSpanElement;
-    const hueSpan: HTMLSpanElement = el(box, '.dataset-explanation-hue span') as HTMLSpanElement;
+    const sizeSpan: HTMLSpanElement = el(box, 'p span.size') as HTMLSpanElement;
+    const hueSpan: HTMLSpanElement = el(box, 'p span.hue') as HTMLSpanElement;
     const hiresCanvas = document.createElement('canvas');
     hiresCanvas.width = 128;
     hiresCanvas.height = 128;
     const img = await loadImage(faceImgUrl);
 
-    const margin = { top: 20, right: 20, bottom: 40, left: 40 };
-    drawGrid(alphaSvg, margin, [sizeRange, hueRange], 'grey', alphaGrid);
+    const margins = { top: 10, right: 40, bottom: 40, left: 40 };
+    drawGrid(alphaSvg, margins, [sizeRange, hueRange], 'grey', alphaGrid);
 
     let working = false;
 
     setUp2dSelectorWithLabels(
       alphaSvg,
-      margin,
+      margins,
       sizeRange,
       hueRange,
       sizeSpan,

@@ -1,4 +1,6 @@
+import type { Margins } from './types/margins.js';
 import type { Pair } from './types/pair.js';
+import { getAttribute, mapRange } from './util.js';
 
 export function addLine(
   svg: SVGSVGElement, stroke: string, [x1, y1]: Pair<number>, [x2, y2]: Pair<number>
@@ -62,6 +64,18 @@ export function addDot(
   return dot;
 }
 
+export function addRect(
+  svg: SVGSVGElement, x: number, y: number, width: number, height: number
+): SVGRectElement {
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('x', x.toString());
+  rect.setAttribute('y', y.toString());
+  rect.setAttribute('width', width.toString());
+  rect.setAttribute('height', height.toString());
+  svg.appendChild(rect);
+  return rect;
+}
+
 export function addText(
   svg: SVGSVGElement, anchor: string, x: number, y: number, textContent: string
 ): SVGTextElement {
@@ -75,4 +89,53 @@ export function addText(
   text.textContent = textContent;
   svg.appendChild(text);
   return text;
+}
+
+function generateTicks(range: [number, number], count = 6): number[] {
+  const [min, max] = range;
+  const step = (max - min) / (count - 1);
+  const tickValues: number[] = [];
+
+  for (let i = 0; i < count; i++) {
+    tickValues.push(min + i * step);
+  }
+
+  return tickValues;
+}
+
+export function addFrame(
+  svg: SVGSVGElement, margins: Margins, xRange: Pair<number>, yRange: Pair<number>
+): void {
+  // const width = svg.clientWidth;
+  // const height = svg.clientHeight;
+  const width = parseFloat(getAttribute(svg, 'width'));
+  const height = parseFloat(getAttribute(svg, 'height'));
+
+  const xScale = mapRange.bind(null, xRange, [margins.left, width - margins.right]);
+  const yScale = mapRange.bind(null, yRange, [height - margins.bottom, margins.top]);
+
+  // x axis
+  addHorizontalLine(svg, 'black', [margins.left, width - margins.right], height - margins.bottom);
+  const xTicks = generateTicks(xRange);
+  xTicks.forEach((tickValue: number) => {
+    const x = xScale(tickValue);
+    addVerticalLine(svg, 'black', x, [height - margins.bottom, height - margins.bottom + 6]);
+    addText(svg, 'middle', x, height - margins.bottom + 18, tickValue.toFixed(1));
+  });
+
+
+  // y axis
+  addVerticalLine(svg, 'black', margins.left, [margins.top, height - margins.bottom]);
+  const yTicks = generateTicks(yRange);
+  yTicks.forEach((tickValue: number) => {
+    const y = yScale(tickValue);
+    addHorizontalLine(svg, 'black', [margins.left - 6, margins.left], y);
+    addText(svg, 'end', margins.left - 9, y + 3, tickValue.toFixed(1));
+  });
+
+  // Add top border line
+  addHorizontalLine(svg, 'black', [margins.left, width - margins.right], margins.top);
+
+  // Add right border line
+  addVerticalLine(svg, 'black', width - margins.right, [margins.top, height - margins.bottom]);
 }
