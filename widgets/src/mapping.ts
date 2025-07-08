@@ -9,7 +9,7 @@ import { setUpRemoteControlledDotWithLabels } from './rcdot';
 import { setUp2dSelectorWithLabels } from './twodselector';
 import type { OrtFunction } from './types/ortfunction';
 import { type Pair } from './types/pair';
-import { addMarginToRange, loadImage, el, writePixelValues, mapPair } from './util';
+import { addMarginToRange, loadImage, el, writePixelValues, mapPair, midRangeValue } from './util';
 
 const extendedSizeRange: Pair<number> = addMarginToRange(sizeRange, 0.2);
 const extendedHueRange: Pair<number> = addMarginToRange(hueRange, 0.2);
@@ -64,9 +64,11 @@ export async function setUpMapping(
     throw new Error('Failed to get 2D context for reconstruction canvas');
   }
 
-  drawGrid(alphaSvg, [extendedSizeRange, extendedHueRange], 'grey', alphaGrid);
+  const margin = { top: 0, right: 0, bottom: 0, left: 0 };
 
-  drawGrid(zSvg, [zRange, zRange], 'grey', zGrid);
+  drawGrid(alphaSvg, margin, [extendedSizeRange, extendedHueRange], 'grey', alphaGrid);
+
+  drawGrid(zSvg, margin, [zRange, zRange], 'grey', zGrid);
 
   // TODO Calculate initial mu and stdDev values
 
@@ -82,11 +84,14 @@ export async function setUpMapping(
   let working = false;
   setUp2dSelectorWithLabels(
     alphaSvg,
-    sizeSpan,
-    hueSpan,
+    margin,
     extendedSizeRange,
     extendedHueRange,
-    (size, hue) => {
+    sizeSpan,
+    hueSpan,
+    midRangeValue(extendedSizeRange),
+    midRangeValue(extendedHueRange),
+    (size: number, hue: number) => {
       if (working) {
         return; // Prevent multiple simultaneous renders
       }

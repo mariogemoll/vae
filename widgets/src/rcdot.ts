@@ -5,6 +5,7 @@ import { mapRangeTo01, mapPair } from './util';
 function addEllipse(svg: SVGSVGElement, pos: Pair<number>, radii: Pair<number>): SVGEllipseElement {
   const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
   ellipse.setAttribute('fill', 'rgba(0, 0, 255, 0.3)');
+  console.log('Adding ellipse at pos:', pos, 'with radii:', radii);
   ellipse.setAttribute('cx', pos[0].toString());
   ellipse.setAttribute('cy', pos[1].toString());
   ellipse.setAttribute('rx', radii[0].toString());
@@ -37,7 +38,7 @@ export function unitAreaRcDot(
   const initialCY = (1 - initialY) * size; // Map initialY from [0,1] to [size,0] (inverted)
 
   const radii = mapPair(v => stdDevToRadius(v, size), initialStdDev);
-  const varianceEllipse = addEllipse(svg, initialMu, radii);
+  const varianceEllipse = addEllipse(svg, [initialCX, initialCY], radii);
   const dot = addDot(svg, initialCX, initialCY, 2);
 
   function update(mu: Pair<number>, stdDev: Pair<number>): void {

@@ -7,7 +7,7 @@ import { getStandardGaussianHeatmap } from './standardgaussianheatmap';
 import { setUp2dSelectorWithLabels } from './twodselector';
 import type { OrtFunction } from './types/ortfunction';
 import type { Pair } from './types/pair';
-import { el } from './util';
+import { el, midRangeValue } from './util';
 
 function addStandardGaussianHeatmap(svg: SVGSVGElement): void {
   const width = 200; // Width of the heatmap
@@ -39,24 +39,36 @@ export function setUpDecoding(
     throw new Error('Failed to get 2D context for reconstruction canvas');
   }
 
-  drawGrid(zSvg, [zRange, zRange], 'grey', zGrid);
+  const margin = { top: 0, right: 0, bottom: 0, left: 0 };
+
+  drawGrid(zSvg, margin, [zRange, zRange], 'grey', zGrid);
 
   let working = false;
-  setUp2dSelectorWithLabels(zSvg, z0Span, z1Span, zRange, zRange, (z0, z1) => {
-    if (working) { return; } // Prevent multiple simultaneous renders
-    working = true;
-    (async(): Promise<void> => {
-      const zArray = [z0, z1];
-      const tensor = new ort.Tensor('float32', new Float32Array(zArray), [
-        1, zArray.length
-      ]);
-      const results = await decode(tensor);
-      drawImage(reconCtx, results.reconstruction.data as Float32Array);
-      working = false;
-    })().catch((error: unknown) => {
-      console.error('Error decoding:', error);
-    });
-  });
+  setUp2dSelectorWithLabels(
+    zSvg,
+    margin,
+    zRange,
+    zRange,
+    z0Span,
+    z1Span,
+    midRangeValue(zRange),
+    midRangeValue(zRange),
+    (z0: number, z1: number) => {
+      if (working) { return; } // Prevent multiple simultaneous renders
+      working = true;
+      (async(): Promise<void> => {
+        const zArray = [z0, z1];
+        const tensor = new ort.Tensor('float32', new Float32Array(zArray), [
+          1, zArray.length
+        ]);
+        const results = await decode(tensor);
+        drawImage(reconCtx, results.reconstruction.data as Float32Array);
+        working = false;
+      })().catch((error: unknown) => {
+        console.error('Error decoding:', error);
+      });
+    }
+  );
 
 
 }

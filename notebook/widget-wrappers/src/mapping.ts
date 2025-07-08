@@ -42,5 +42,11 @@ setUpMapping().catch((error: unknown) => {
   if (error instanceof Error) {
     msg = error.message;
   }
-  mappingContainer.innerHTML = `<p>Error setting up mapping widget: ${msg}</p>`;
+  const errorP = document.createElement('p');
+  errorP.textContent = `Error setting up mapping widget: ${msg}`;
+  errorP.style.color = 'red';
+  errorP.style.fontWeight = 'bold';
+  errorP.style.position = 'absolute';
+  errorP.style.bottom = '0';
+  mappingContainer.appendChild(errorP);
 });

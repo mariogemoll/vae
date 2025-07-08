@@ -1,15 +1,15 @@
 import type { RenderProps, Render } from '@anywidget/types';
 
-type Cell = HTMLTableCellElement;
-type UpdateHandler = (x: number, y: number, width: number, height: number) => void;
-
-function getAttribute(element: Element, attribute: string): string {
+export function getAttribute(element: Element, attribute: string): string {
   const value = element.getAttribute(attribute);
   if (value === null) {
     throw new Error(`Attribute "${attribute}" not found on element.`);
   }
   return value;
 }
+
+type Cell = HTMLTableCellElement;
+type UpdateHandler = (x: number, y: number, width: number, height: number) => void;
 
 function setUpUnitAreaSelection(
   container: HTMLElement,

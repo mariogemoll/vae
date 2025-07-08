@@ -95,3 +95,11 @@ export function writePixelValues(
     }
   }
 }
+
+export function getAttribute(element: Element, attribute: string): string {
+  const value = element.getAttribute(attribute);
+  if (value === null) {
+    throw new Error(`Attribute "${attribute}" not found on element.`);
+  }
+  return value;
+}

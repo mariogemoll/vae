@@ -3,7 +3,7 @@ import { renderSample } from './dataset.js';
 import { drawGrid } from './grid.js';
 import { setUp2dSelectorWithLabels } from './twodselector.js';
 import type { Pair } from './types/pair.js';
-import { el, loadImage } from './util.js';
+import { el, loadImage, midRangeValue } from './util.js';
 
 export async function setUpDatasetExplanation(
   picaInstance: pica.Pica, faceImgUrl: string, alphaGrid: Pair<number>[][], box: HTMLDivElement
@@ -18,19 +18,31 @@ export async function setUpDatasetExplanation(
     hiresCanvas.height = 128;
     const img = await loadImage(faceImgUrl);
 
-    drawGrid(alphaSvg, [sizeRange,  hueRange], 'grey', alphaGrid);
+    const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+    drawGrid(alphaSvg, margin, [sizeRange, hueRange], 'grey', alphaGrid);
 
     let working = false;
-    setUp2dSelectorWithLabels(alphaSvg, sizeSpan, hueSpan, sizeRange, hueRange, (size, hue) => {
-      if (working) {return;} // Prevent multiple simultaneous renders
-      working = true;
-      (async(): Promise<void> => {
-        await renderSample(picaInstance, hiresCanvas, imgCanvas, img, size, hue);
-        working = false;
-      })().catch((error: unknown) => {
-        console.error('Error rendering sample:', error);
-      });
-    });
+
+    setUp2dSelectorWithLabels(
+      alphaSvg,
+      margin,
+      sizeRange,
+      hueRange,
+      sizeSpan,
+      hueSpan,
+      midRangeValue(sizeRange),
+      midRangeValue(hueRange),
+      (size, hue) => {
+        if (working) { return; } // Prevent multiple simultaneous renders
+        working = true;
+        (async(): Promise<void> => {
+          await renderSample(picaInstance, hiresCanvas, imgCanvas, img, size, hue);
+          working = false;
+        })().catch((error: unknown) => {
+          console.error('Error rendering sample:', error);
+        });
+      }
+    );
   } catch (error: unknown) {
     console.error('Error setting up dataset explanation:', error);
     let msg = 'Unknown error';

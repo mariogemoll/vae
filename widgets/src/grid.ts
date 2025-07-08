@@ -1,16 +1,19 @@
 import * as ort from 'onnxruntime-web';
 
 import { renderSample } from './dataset';
+import { addLine } from './svg';
 import type { OrtFunction } from './types/ortfunction';
 import type { Pair } from './types/pair';
 import { mapRange, writePixelValues } from './util';
 
 export function drawGrid(
-  svg: SVGSVGElement, fieldRange: Pair<Pair<number>>, stroke: string, tensor: Pair<number>[][]
+  svg: SVGSVGElement,
+  margin: { top: number, right: number, bottom: number, left: number },
+  fieldRange: Pair<Pair<number>>, stroke: string, tensor: Pair<number>[][]
 ): void {
   const outputRange: Pair<Pair<number>> = [
-    [0, svg.clientWidth],
-    [0, svg.clientHeight]
+    [margin.left, svg.clientWidth - margin.right],
+    [margin.top, svg.clientHeight - margin.bottom]
   ];
   const rows = tensor.length;
   const cols = tensor[0].length;
@@ -23,13 +26,13 @@ export function drawGrid(
       // Horizontal line
       if (x < cols - 1) {
         const p2 = mapPoint(fieldRange, outputRange, tensor[y][x + 1]);
-        drawLine(svg, stroke, p1, p2);
+        addLine(svg, stroke, p1, p2);
       }
 
       // Vertical line
       if (y < rows - 1) {
         const p2 = mapPoint(fieldRange, outputRange, tensor[y + 1][x]);
-        drawLine(svg, stroke, p1, p2);
+        addLine(svg, stroke, p1, p2);
       }
     }
   }
@@ -43,19 +46,6 @@ function mapPoint(
     // Invert y-axis direction
     mapRange(fieldRange[1], [outputRange[1][1], outputRange[1][0]], y)
   ];
-}
-
-function drawLine(
-  svg: SVGSVGElement, stroke: string, [x1, y1]: Pair<number>, [x2, y2]: Pair<number>
-): void {
-  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  line.setAttribute('x1', x1.toString());
-  line.setAttribute('y1', y1.toString());
-  line.setAttribute('x2', x2.toString());
-  line.setAttribute('y2', y2.toString());
-  line.setAttribute('stroke', stroke);
-  line.setAttribute('stroke-width', '0.5');
-  svg.appendChild(line);
 }
 
 export function makeStandardGrid(xRange: Pair<number>, yRange: Pair<number>): Pair<number>[][] {
