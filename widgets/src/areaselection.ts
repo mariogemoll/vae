@@ -1,12 +1,6 @@
 import type { RenderProps, Render } from '@anywidget/types';
 
-export function getAttribute(element: Element, attribute: string): string {
-  const value = element.getAttribute(attribute);
-  if (value === null) {
-    throw new Error(`Attribute "${attribute}" not found on element.`);
-  }
-  return value;
-}
+import { getAttribute } from './util.js';
 
 type Cell = HTMLTableCellElement;
 type UpdateHandler = (x: number, y: number, width: number, height: number) => void;
