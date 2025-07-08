@@ -1,8 +1,9 @@
 import fromBase64 from 'es-arraybuffer-base64/Uint8Array.fromBase64';
 
+import { addFrame } from './canvas.js';
 import { sizeRange, hueRange } from './constants.js';
 import type { Pair } from './types/pair.js';
-import { addErrorMessage, el } from './util.js';
+import { addErrorMessage, el, mapRange } from './util.js';
 
 function setUpUi(
   scatterCanvas: HTMLCanvasElement, imageCanvas: HTMLCanvasElement, sizeValueSpan: HTMLSpanElement,
@@ -17,28 +18,23 @@ function setUpUi(
     throw new Error('Failed to get image canvas context');
   }
 
+  const margins = { top: 10, right: 40, bottom: 50, left: 40 };
 
   const thresholdPx = 10;
 
   // Draw scatter points
   function drawScatter(scatterCtx: CanvasRenderingContext2D, highlightIndex: number | null,
-    xRange: Pair<number>, yRange: Pair<number>): void {
-    scatterCtx.clearRect(0, 0, 200, 200);
-    const scale = 200;
-    const margin = 0;
-
-    // Calculate scaling factors based on the ranges
-    const xScale = scale / (xRange[1] - xRange[0]);
+    xDomain: Pair<number>, yDomain: Pair<number>): void {
+    scatterCtx.clearRect(0, 0, 280, 250);
+    addFrame(scatterCanvas, margins, sizeRange, hueRange);
+    const xRange: Pair<number> = [margins.left, 280 - margins.right];
+    const yRange: Pair<number> = [250 - margins.bottom, margins.top];
 
     for (let i = 0; i < allCoords.length; i++) {
       const [x, y] = allCoords[i];
 
-      // Skip points outside the specified ranges
-      if (x < xRange[0] || x > xRange[1] || y < yRange[0] || y > yRange[1]) { continue; }
-
-      // Map the coordinates to the visible area
-      const px = margin + (x - xRange[0]) * xScale;
-      const py = margin + (1 - (y - yRange[0]) / (yRange[1] - yRange[0])) * scale;
+      const px = mapRange(xDomain, xRange, x);
+      const py = mapRange(yDomain, yRange, y);
 
       scatterCtx.beginPath();
       scatterCtx.arc(px, py, 3, 0, 2 * Math.PI);
@@ -48,18 +44,13 @@ function setUpUi(
 
     if (highlightIndex !== null) {
       const [x, y] = allCoords[highlightIndex];
-
-      // Only highlight if in range
-      if (x >= xRange[0] && x <= xRange[1] && y >= yRange[0] && y <= yRange[1]) {
-        const px = margin + (x - xRange[0]) * xScale;
-        const py = margin + (1 - (y - yRange[0]) / (yRange[1] - yRange[0])) * scale;
-
-        scatterCtx.beginPath();
-        scatterCtx.arc(px, py, 6, 0, 3 * Math.PI);
-        scatterCtx.strokeStyle = 'red';
-        scatterCtx.lineWidth = 2;
-        scatterCtx.stroke();
-      }
+      const px = mapRange(xDomain, xRange, x);
+      const py = mapRange(yDomain, yRange, y);
+      scatterCtx.beginPath();
+      scatterCtx.arc(px, py, 6, 0, 3 * Math.PI);
+      scatterCtx.strokeStyle = 'red';
+      scatterCtx.lineWidth = 2;
+      scatterCtx.stroke();
     }
 
     if (highlightIndex !== null) {
@@ -79,7 +70,6 @@ function setUpUi(
     const my = event.clientY - rect.top;
 
     const scale = 200;
-    const margin = 0;
     const xScale = scale / (sizeRange[1] - sizeRange[0]);
 
     let minDist = Infinity;
@@ -91,8 +81,8 @@ function setUpUi(
       // Skip points outside the range
       if (x < sizeRange[0] || x > sizeRange[1] || y < hueRange[0] || y > hueRange[1]) { continue; }
 
-      const px = margin + (x - sizeRange[0]) * xScale;
-      const py = margin + (1 - (y - hueRange[0]) / (hueRange[1] - hueRange[0])) * scale;
+      const px = margins.left + (x - sizeRange[0]) * xScale;
+      const py = margins.top + (1 - (y - hueRange[0]) / (hueRange[1] - hueRange[0])) * scale;
       const dist = Math.hypot(px - mx, py - my);
       if (dist < minDist) {
         minDist = dist;
@@ -141,15 +131,14 @@ function setUpUi(
   }
 }
 
-
 export function setUpDatasetVisualization(
   box: HTMLDivElement, trainsetX: number[], trainsetY: number[], valsetX: number[],
   valsetY: number[], trainsetImagesBase64: string, valsetImagesBase64: string): void {
   try {
     const alphaCanvas: HTMLCanvasElement = el(box, 'canvas.alpha-space') as HTMLCanvasElement;
     const imgCanvas: HTMLCanvasElement = el(box, 'canvas.pic') as HTMLCanvasElement;
-    const sizeSpan: HTMLSpanElement = el(box, '.size span') as HTMLSpanElement;
-    const hueSpan: HTMLSpanElement = el(box, '.hue spsan') as HTMLSpanElement;
+    const sizeSpan: HTMLSpanElement = el(box, 'p span.size') as HTMLSpanElement;
+    const hueSpan: HTMLSpanElement = el(box, 'p span.hue') as HTMLSpanElement;
 
     const data: Record<string, { X: number[], Y: number[], images: string }> = {
       'train': {
@@ -165,7 +154,6 @@ export function setUpDatasetVisualization(
     };
 
     const labels = ['train', 'val'];
-
 
     const allCoords: Pair<number>[] = [];
     const allImages: Uint8Array[] = [];
