@@ -2,6 +2,14 @@ import type { Margins } from './types/margins.js';
 import type { Pair } from './types/pair.js';
 import { mapRange } from './util.js';
 
+export function getContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Failed to get 2D context for canvas');
+  }
+  return ctx;
+}
+
 export function addLine(
   ctx: CanvasRenderingContext2D, stroke: string, [x1, y1]: Pair<number>, [x2, y2]: Pair<number>
 ): void {
@@ -97,10 +105,7 @@ export function addFrame(
   yRange: Pair<number>,
   numTicks: number
 ): void {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    throw new Error('Failed to get 2D context for canvas');
-  }
+  const ctx = getContext(canvas);
 
   const width = canvas.width;
   const height = canvas.height;

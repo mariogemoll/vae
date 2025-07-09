@@ -1,5 +1,6 @@
 import type pica from 'pica';
 
+import { getContext } from './canvas.js';
 import { hueRange, sizeRange, zRange } from './constants.js';
 import { renderSample } from './dataset.js';
 import { drawImage } from './drawimage.js';
@@ -64,14 +65,10 @@ export async function setUpMapping(
   const z0StdDevCell = el(box, '.z0-std-dev') as HTMLSpanElement;
   const z1StdDevCell = el(box, '.z1-std-dev') as HTMLSpanElement;
   const reconCanvas = el(box, '.reconstruction') as HTMLCanvasElement;
-  const reconCtx = reconCanvas.getContext('2d');
+  const reconCtx = getContext(reconCanvas);
 
   const margins = { top: 10, right: 40, bottom: 40, left: 40 };
   const faceImg = await loadImage(faceImgUrl);
-
-  if (!reconCtx) {
-    throw new Error('Failed to get 2D context for reconstruction canvas');
-  }
 
   drawGrid(alphaSvg, margins, [extendedSizeRange, extendedHueRange], 'grey', alphaGrid);
 
@@ -82,9 +79,27 @@ export async function setUpMapping(
     zSvg,
     margins,
     [zRange, zRange],
-    [.5, .5],
+    [0.0, 0.0],
     [1.0, 1.0]
   );
+
+  async function update(size: number, hue: number): Promise<void> {
+    await renderSample(picaInstance, hiresCanvas, xCanvas, faceImg, size, hue);
+    const [mu, logvar] = await encodeImg(ort, encode, xCanvas, singleImgArr);
+    const stdDev = mapPair(logVarToStdDev, logvar);
+    z0MuCell.textContent = mu[0].toFixed(2);
+    z1MuCell.textContent = mu[1].toFixed(2);
+    z0StdDevCell.textContent = stdDev[0].toFixed(2);
+    z1StdDevCell.textContent = stdDev[1].toFixed(2);
+    updateZ(mu, mapPair((x) => x * stdDevMultiplier, stdDev));
+    const zTensor = new ort.Tensor('float32', new Float32Array(mu), [
+      1, mu.length
+    ]);
+    const reconResult = await decode(zTensor);
+    drawImage(reconCtx, reconResult.reconstruction.data as Float32Array);
+    working = false;
+  }
+
 
   const hiresCanvas = document.createElement('canvas');
   hiresCanvas.width = 128;
@@ -111,23 +126,11 @@ export async function setUpMapping(
         return; // Prevent multiple simultaneous renders
       }
       working = true;
-      (async(): Promise<void> => {
-        await renderSample(picaInstance, hiresCanvas, xCanvas, faceImg, size, hue);
-        const [mu, logvar] = await encodeImg(ort, encode, xCanvas, singleImgArr);
-        const stdDev = mapPair(logVarToStdDev, logvar);
-        z0MuCell.textContent = mu[0].toFixed(2);
-        z1MuCell.textContent = mu[1].toFixed(2);
-        z0StdDevCell.textContent = stdDev[0].toFixed(2);
-        z1StdDevCell.textContent = stdDev[1].toFixed(2);
-        updateZ(mu, mapPair((x) => x * stdDevMultiplier, stdDev));
-        const zTensor = new ort.Tensor('float32', new Float32Array(mu), [
-          1, mu.length
-        ]);
-        const reconResult = await decode(zTensor);
-        drawImage(reconCtx, reconResult.reconstruction.data as Float32Array);
+      (async function(): Promise<void> {
+        await update(size, hue);
         working = false;
       })().catch((error: unknown) => {
-        console.error('Error rendering sample:', error);
+        console.error('Error updating sample:', error);
       });
     }
   );

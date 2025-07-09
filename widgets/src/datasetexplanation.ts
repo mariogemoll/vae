@@ -35,7 +35,7 @@ export async function setUpDatasetExplanation(
       hueSpan,
       midRangeValue(sizeRange),
       midRangeValue(hueRange),
-      (size, hue) => {
+      (size: number, hue: number) => {
         if (working) { return; } // Prevent multiple simultaneous renders
         working = true;
         (async(): Promise<void> => {

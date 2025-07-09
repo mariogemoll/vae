@@ -1,3 +1,5 @@
+import { getContext } from './canvas.js';
+
 function gaussian2d(x: number, y: number): number {
   const sigma = 1;
   return (1 / (2 * Math.PI * sigma * sigma)) *
@@ -6,11 +8,7 @@ function gaussian2d(x: number, y: number): number {
 
 
 export function drawGaussian(canvas: HTMLCanvasElement, zrange: number): void {
-
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    throw new Error('Failed to get 2D context for canvas');
-  }
+  const ctx = getContext(canvas);
   const W = canvas.width;
   const H = canvas.height;
   const image = ctx.createImageData(W, H);

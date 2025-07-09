@@ -96,4 +96,5 @@ export function setUp2dSelectorWithLabels(
     callback(x, y);
   }
   setUp2dSelector(svg, margins, xRange, yRange, initialX, initialY, internalCallback);
+  internalCallback(initialX, initialY);
 }

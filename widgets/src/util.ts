@@ -1,3 +1,4 @@
+import { getContext } from './canvas.js';
 import type { Pair } from './types/pair';
 
 export function el(parent: Document | Element, query: string): Element {
@@ -69,10 +70,7 @@ export function mapPair<T, U>(fn: (value: T) => U, pair: Pair<T>): Pair<U> {
 export function writePixelValues(
   fullArray: Float32Array, sampleIndex: number, canvas: HTMLCanvasElement
 ): void {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    throw new Error('Failed to get 2D context for canvas');
-  }
+  const ctx = getContext(canvas);
   // Extract image data (after Pica resize)
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = imageData.data; // RGBA flat array

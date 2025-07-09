@@ -1,6 +1,6 @@
 import fromBase64 from 'es-arraybuffer-base64/Uint8Array.fromBase64';
 
-import { addFrame } from './canvas.js';
+import { addFrame,getContext } from './canvas.js';
 import { hueRange, sizeRange } from './constants.js';
 import type { Pair } from './types/pair.js';
 import { addErrorMessage, el, mapRange } from './util.js';
@@ -9,14 +9,9 @@ function setUpUi(
   scatterCanvas: HTMLCanvasElement, imageCanvas: HTMLCanvasElement, sizeValueSpan: HTMLSpanElement,
   hueValueSpan: HTMLSpanElement, allCoords: Pair<number>[], allImages: Uint8Array[],
   allLabels: string[]): void {
-  const scatterCtx = scatterCanvas.getContext('2d');
-  if (!scatterCtx) {
-    throw new Error('Failed to get scatter canvas context');
-  }
-  const imageCtx = imageCanvas.getContext('2d');
-  if (!imageCtx) {
-    throw new Error('Failed to get image canvas context');
-  }
+  const scatterCtx = getContext(scatterCanvas);
+  const imageCtx = getContext(imageCanvas);
+
 
   const margins = { top: 10, right: 40, bottom: 50, left: 40 };
 
@@ -129,6 +124,12 @@ function setUpUi(
     const imageData = new ImageData(rgba, width, height);
     imageCtx.putImageData(imageData, 0, 0);
   }
+
+  // Select a random point to display initially
+  const initialIndex = Math.floor(Math.random() * allCoords.length);
+  selectedPointIndex = initialIndex;
+  updateImageDisplay(imageCtx, initialIndex);
+  drawScatter(scatterCtx, initialIndex, sizeRange, hueRange);
 }
 
 export function setUpDatasetVisualization(

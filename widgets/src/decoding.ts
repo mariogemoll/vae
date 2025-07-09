@@ -1,3 +1,4 @@
+import { getContext } from './canvas.js';
 import { zRange } from './constants.js';
 import { drawImage } from './drawimage.js';
 import { drawGrid } from './grid.js';
@@ -38,14 +39,22 @@ export function setUpDecoding(
 
   // Add standard Gaussian heatmap to the SVG
   addStandardGaussianHeatmap(zSvg, margins.left, margins.top);
-  const reconCtx = reconCanvas.getContext('2d');
-  if (!reconCtx) {
-    throw new Error('Failed to get 2D context for reconstruction canvas');
-  }
+  const reconCtx = getContext(reconCanvas);
 
   drawGrid(zSvg, margins, [zRange, zRange], 'grey', zGrid);
 
   addFrame(zSvg, margins, zRange, zRange, 5);
+
+  async function update(z0: number, z1: number): Promise<void> {
+    const zArray = [z0, z1];
+    const tensor = new ort.Tensor('float32', new Float32Array(zArray), [
+      1, zArray.length
+    ]);
+    const results = await decode(tensor);
+    drawImage(reconCtx, results.reconstruction.data as Float32Array);
+  }
+
+  const initialZ = midRangeValue(zRange);
 
   let working = false;
   setUp2dSelectorWithLabels(
@@ -55,18 +64,13 @@ export function setUpDecoding(
     zRange,
     z0Span,
     z1Span,
-    midRangeValue(zRange),
-    midRangeValue(zRange),
+    initialZ,
+    initialZ,
     (z0: number, z1: number) => {
-      if (working) { return; } // Prevent multiple simultaneous renders
+      if (working) { return; }
       working = true;
       (async(): Promise<void> => {
-        const zArray = [z0, z1];
-        const tensor = new ort.Tensor('float32', new Float32Array(zArray), [
-          1, zArray.length
-        ]);
-        const results = await decode(tensor);
-        drawImage(reconCtx, results.reconstruction.data as Float32Array);
+        await update(z0, z1);
         working = false;
       })().catch((error: unknown) => {
         console.error('Error decoding:', error);

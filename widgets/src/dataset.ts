@@ -1,3 +1,4 @@
+import { getContext } from './canvas.js';
 import { hsvToRgb } from './util.js';
 
 function pixelVal(value: number): string {
@@ -11,11 +12,7 @@ export async function renderSample(
   img: HTMLImageElement,
   size: number,
   hue: number): Promise<void> {
-  const hiresCtx = hiresCanvas.getContext('2d');
-  if (!hiresCtx) {
-    throw new Error('Failed to get 2D context from hiresCanvas');
-  }
-  // const downsampledCtx = downsampledCanvas.getContext('2d');
+  const hiresCtx = getContext(hiresCanvas);
   const bigSize = 128;
 
   // Fill HSV background
