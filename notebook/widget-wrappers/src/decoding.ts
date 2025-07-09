@@ -1,3 +1,4 @@
+import * as ort from 'onnxruntime-web';
 import pica from 'pica';
 import { sizeRange, hueRange } from 'widgets/constants';
 import { setUpDecoding as setUpDecodingInternal } from 'widgets/decoding';
@@ -28,9 +29,9 @@ async function setUpDecoding(): Promise<void> {
   const picaInstance = pica();
 
   const img = await loadImage(faceImgUrl);
-  const zGrid = await encodeGrid(picaInstance, img, encode, alphaGrid);
+  const zGrid = await encodeGrid(ort, picaInstance, img, encode, alphaGrid);
 
-  setUpDecodingInternal(decode, zGrid, decodingContainer);
+  setUpDecodingInternal(ort, decode, zGrid, decodingContainer);
   settingUpDecoding = false;
 }
 

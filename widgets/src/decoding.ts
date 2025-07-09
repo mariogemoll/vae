@@ -1,14 +1,12 @@
-import * as ort from 'onnxruntime-web';
-
-import { zRange } from './constants';
-import { drawImage } from './drawimage';
-import { drawGrid } from './grid';
-import { getStandardGaussianHeatmap } from './standardgaussianheatmap';
-import { addFrame } from './svg';
-import { setUp2dSelectorWithLabels } from './twodselector';
-import type { OrtFunction } from './types/ortfunction';
-import type { Pair } from './types/pair';
-import { el, midRangeValue } from './util';
+import { zRange } from './constants.js';
+import { drawImage } from './drawimage.js';
+import { drawGrid } from './grid.js';
+import { getStandardGaussianHeatmap } from './standardgaussianheatmap.js';
+import { addFrame } from './svg.js';
+import { setUp2dSelectorWithLabels } from './twodselector.js';
+import type { OrtFunction } from './types/ortfunction.js';
+import type { Pair } from './types/pair.js';
+import { el, midRangeValue } from './util.js';
 
 function addStandardGaussianHeatmap(svg: SVGSVGElement, x: number, y: number): void {
   const width = 200; // Width of the heatmap
@@ -26,7 +24,11 @@ function addStandardGaussianHeatmap(svg: SVGSVGElement, x: number, y: number): v
 }
 
 export function setUpDecoding(
-  decode: OrtFunction, zGrid: Pair<number>[][], box: HTMLDivElement
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  ort: typeof import('onnxruntime-web'),
+  decode: OrtFunction,
+  zGrid: Pair<number>[][],
+  box: HTMLDivElement
 ): void {
   const zSvg = el(box, 'svg.z-space') as SVGSVGElement;
   const reconCanvas = el(box, 'canvas.reconstruction') as HTMLCanvasElement;

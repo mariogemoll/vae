@@ -1,10 +1,10 @@
-import * as ort from 'onnxruntime-web';
+import type * as ort from 'onnxruntime-web';
 
-import { renderSample } from './dataset';
-import { addLine } from './svg';
+import { renderSample } from './dataset.js';
+import { addLine } from './svg.js';
 import type { OrtFunction } from './types/ortfunction';
 import type { Pair } from './types/pair';
-import { mapRange, writePixelValues } from './util';
+import { mapRange, writePixelValues } from './util.js';
 
 export function drawGrid(
   svg: SVGSVGElement,
@@ -88,12 +88,13 @@ function tensor100x2_to_10x10x2(tensor: ort.Tensor): Pair<number>[][] {
 }
 
 export async function encodeGrid(
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  ort: typeof import('onnxruntime-web'),
   picaInstance: pica.Pica,
   img: HTMLImageElement,
   encode: OrtFunction,
   alphaGrid: Pair<number>[][]
 ): Promise<Pair<number>[][]> {
-
   const hiresCanvas = document.createElement('canvas');
   hiresCanvas.width = 128;
   hiresCanvas.height = 128;

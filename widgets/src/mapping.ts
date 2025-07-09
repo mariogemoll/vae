@@ -1,16 +1,17 @@
-import * as ort from 'onnxruntime-web';
 import type pica from 'pica';
 
-import { sizeRange, hueRange, zRange } from './constants';
-import { renderSample } from './dataset';
-import { drawImage } from './drawimage';
-import { drawGrid } from './grid';
-import { setUpRemoteControlledDot } from './rcdot';
-import { addFrame } from './svg';
-import { setUp2dSelectorWithLabels } from './twodselector';
+import { sizeRange, hueRange, zRange } from './constants.js';
+import { renderSample } from './dataset.js';
+import { drawImage } from './drawimage.js';
+import { drawGrid } from './grid.js';
+import { setUpRemoteControlledDot } from './rcdot.js';
+import { addFrame } from './svg.js';
+import { setUp2dSelectorWithLabels } from './twodselector.js';
 import type { OrtFunction } from './types/ortfunction';
-import { type Pair } from './types/pair';
-import { addMarginToRange, loadImage, el, writePixelValues, mapPair, midRangeValue } from './util';
+import type { Pair } from './types/pair';
+import {
+  addMarginToRange, loadImage, el, writePixelValues, mapPair, midRangeValue
+} from './util.js';
 
 const extendedSizeRange: Pair<number> = addMarginToRange(sizeRange, 0.2);
 const extendedHueRange: Pair<number> = addMarginToRange(hueRange, 0.2);
@@ -18,6 +19,8 @@ const extendedHueRange: Pair<number> = addMarginToRange(hueRange, 0.2);
 const stdDevMultiplier = 3.0; // Multiplier for standard deviation, can be adjusted
 
 async function encodeImg(
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  ort: typeof import('onnxruntime-web'),
   encode: OrtFunction,
   canvas: HTMLCanvasElement,
   singleImgArr: Float32Array
@@ -41,6 +44,8 @@ function logVarToStdDev(logvar: number): number {
 }
 
 export async function setUpMapping(
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  ort: typeof import('onnxruntime-web'),
   encode: OrtFunction,
   decode: OrtFunction,
   picaInstance: pica.Pica,
@@ -108,7 +113,7 @@ export async function setUpMapping(
       working = true;
       (async(): Promise<void> => {
         await renderSample(picaInstance, hiresCanvas, xCanvas, faceImg, size, hue);
-        const [mu, logvar] = await encodeImg(encode, xCanvas, singleImgArr);
+        const [mu, logvar] = await encodeImg(ort, encode, xCanvas, singleImgArr);
         const stdDev = mapPair(logVarToStdDev, logvar);
         z0MuCell.textContent = mu[0].toFixed(2);
         z1MuCell.textContent = mu[1].toFixed(2);

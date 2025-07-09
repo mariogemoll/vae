@@ -1,3 +1,4 @@
+import * as ort from 'onnxruntime-web';
 import pica from 'pica';
 import { sizeRange, hueRange } from 'widgets/constants';
 import { encodeGrid, makeStandardGrid } from 'widgets/grid';
@@ -28,10 +29,10 @@ async function setUpMapping(): Promise<void> {
   const picaInstance = pica();
 
   const img = await loadImage(faceImgUrl);
-  const zGrid = await encodeGrid(picaInstance, img, encode, alphaGrid);
+  const zGrid = await encodeGrid(ort, picaInstance, img, encode, alphaGrid);
 
   await setUpMappingInternal(
-    encode, decode, picaInstance, faceImgUrl, alphaGrid, zGrid, mappingContainer
+    ort, encode, decode, picaInstance, faceImgUrl, alphaGrid, zGrid, mappingContainer
   );
   settingUpMapping = false;
 }
