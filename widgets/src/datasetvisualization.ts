@@ -1,7 +1,7 @@
 import fromBase64 from 'es-arraybuffer-base64/Uint8Array.fromBase64';
 
 import { addFrame } from './canvas.js';
-import { sizeRange, hueRange } from './constants.js';
+import { hueRange, sizeRange } from './constants.js';
 import type { Pair } from './types/pair.js';
 import { addErrorMessage, el, mapRange } from './util.js';
 

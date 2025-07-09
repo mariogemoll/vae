@@ -1,6 +1,6 @@
 import * as ort from 'onnxruntime-web';
 import pica from 'pica';
-import { sizeRange, hueRange } from 'widgets/constants';
+import { hueRange,sizeRange } from 'widgets/constants';
 import { setUpDecoding as setUpDecodingInternal } from 'widgets/decoding';
 import { encodeGrid, makeStandardGrid } from 'widgets/grid';
 import { addErrorMessage, loadImage } from 'widgets/util';

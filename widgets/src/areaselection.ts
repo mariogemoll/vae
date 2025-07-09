@@ -1,6 +1,7 @@
-import type { RenderProps, Render } from '@anywidget/types';
 
-import { addFrame, addRect } from './svg.js';
+import type { Render, RenderProps } from '@anywidget/types';
+
+import { addFrame,addRect } from './svg.js';
 import type { Pair } from './types/pair.js';
 import { getAttribute, map01ToRange, mapRangeTo01 } from './util.js';
 

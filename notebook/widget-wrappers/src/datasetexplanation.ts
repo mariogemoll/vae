@@ -1,5 +1,5 @@
 import pica from 'pica';
-import { sizeRange, hueRange } from 'widgets/constants';
+import { hueRange,sizeRange } from 'widgets/constants';
 import { setUpDatasetExplanation } from 'widgets/datasetexplanation';
 import { makeStandardGrid } from 'widgets/grid';
 import { addErrorMessage } from 'widgets/util';

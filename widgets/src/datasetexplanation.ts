@@ -1,4 +1,4 @@
-import { sizeRange, hueRange } from './constants.js';
+import { hueRange, sizeRange } from './constants.js';
 import { renderSample } from './dataset.js';
 import { drawGrid } from './grid.js';
 import { addFrame } from './svg.js';

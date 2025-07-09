@@ -1,6 +1,6 @@
 import type pica from 'pica';
 
-import { sizeRange, hueRange, zRange } from './constants.js';
+import { hueRange, sizeRange, zRange } from './constants.js';
 import { renderSample } from './dataset.js';
 import { drawImage } from './drawimage.js';
 import { drawGrid } from './grid.js';
@@ -10,7 +10,7 @@ import { setUp2dSelectorWithLabels } from './twodselector.js';
 import type { OrtFunction } from './types/ortfunction';
 import type { Pair } from './types/pair';
 import {
-  addMarginToRange, loadImage, el, writePixelValues, mapPair, midRangeValue
+  addMarginToRange, el, loadImage, mapPair, midRangeValue, writePixelValues
 } from './util.js';
 
 const extendedSizeRange: Pair<number> = addMarginToRange(sizeRange, 0.2);

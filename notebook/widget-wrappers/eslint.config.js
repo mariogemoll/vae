@@ -1,6 +1,6 @@
-import importPlugin from 'eslint-plugin-import';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
+import simpleImportSort from "eslint-plugin-simple-import-sort";
 
 export default tseslint.config(
   eslint.configs.recommended,
@@ -14,7 +14,7 @@ export default tseslint.config(
       },
     },
     plugins: {
-      import: importPlugin
+      "simple-import-sort": simpleImportSort,
     },
     rules: {
       semi: ['error', 'always'],
@@ -45,14 +45,8 @@ export default tseslint.config(
           'method',
         ]
       }],
-      'import/order': ['error', {
-        groups: ['builtin', 'external', 'internal', ['parent', 'sibling', 'index']],
-        'newlines-between': 'always',
-        alphabetize: { order: 'asc', caseInsensitive: true },
-      }],
-      'import/no-default-export': 'error',
-      'import/no-relative-packages': 'error',
-
+      "simple-import-sort/imports": "error",
+      "simple-import-sort/exports": "error",
       'no-duplicate-imports': 'error',
       'prefer-const': 'error',
       'no-var': 'error',
