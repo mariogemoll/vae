@@ -48,7 +48,9 @@ jobs:
 
     - name: "Widgets: Run ESLint"
       working-directory: widgets
-      run: npx eslint src
+      run: |
+        npx eslint -c basic.eslint.config.js basic.eslint.config.js eslint.config.js
+        npx eslint src
 
     - name: "Widgets: Compile TypeScript"
       working-directory: widgets
@@ -60,7 +62,9 @@ jobs:
 
     - name: "Widget wrappers: Run ESLint"
       working-directory: notebook/widget-wrappers
-      run: npx eslint src
+      run: |
+        npx eslint -c basic.eslint.config.js basic.eslint.config.js eslint.config.js
+        npx eslint src
 
     - name: "Widget wrappers: Compile TypeScript"
       working-directory: notebook/widget-wrappers
