@@ -6,10 +6,10 @@ export function addLine(
   svg: SVGSVGElement, stroke: string, [x1, y1]: Pair<number>, [x2, y2]: Pair<number>
 ): void {
   const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  line.setAttribute('x1', x1.toString());
-  line.setAttribute('y1', y1.toString());
-  line.setAttribute('x2', x2.toString());
-  line.setAttribute('y2', y2.toString());
+  line.setAttribute('x1', (Math.round(x1) + 0.5).toString());
+  line.setAttribute('y1', (Math.round(y1) + 0.5).toString());
+  line.setAttribute('x2', (Math.round(x2) + 0.5).toString());
+  line.setAttribute('y2', (Math.round(y2) + 0.5).toString());
   line.setAttribute('stroke', stroke);
   line.setAttribute('stroke-width', '0.5');
   line.setAttribute('stroke-rendering', 'crispEdges');
