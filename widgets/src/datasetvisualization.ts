@@ -138,8 +138,8 @@ export function setUpDatasetVisualization(
   try {
     const alphaCanvas: HTMLCanvasElement = el(box, 'canvas.alpha-space') as HTMLCanvasElement;
     const imgCanvas: HTMLCanvasElement = el(box, 'canvas.pic') as HTMLCanvasElement;
-    const sizeSpan: HTMLSpanElement = el(box, 'p span.size') as HTMLSpanElement;
-    const hueSpan: HTMLSpanElement = el(box, 'p span.hue') as HTMLSpanElement;
+    const sizeSpan: HTMLSpanElement = el(box, 'span.size') as HTMLSpanElement;
+    const hueSpan: HTMLSpanElement = el(box, 'span.hue') as HTMLSpanElement;
 
     const data: Record<string, { X: number[], Y: number[], images: string }> = {
       'train': {

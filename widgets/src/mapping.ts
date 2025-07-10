@@ -98,8 +98,8 @@ export async function setUpMapping(
 ): Promise<void> {
   try {
     const alphaSvg = el(box, '.alpha-space') as SVGSVGElement;
-    const sizeSpan = el(box, '.size span') as HTMLSpanElement;
-    const hueSpan = el(box, '.hue span') as HTMLSpanElement;
+    const sizeSpan = el(box, 'span.size') as HTMLSpanElement;
+    const hueSpan = el(box, 'span.hue') as HTMLSpanElement;
     const xCanvas = el(box, '.pic-x') as HTMLCanvasElement;
     const zSvg = el(box, '.z-space') as SVGSVGElement;
     const z0MuCell = el(box, '.z0-mu span') as HTMLSpanElement;

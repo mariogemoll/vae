@@ -34,8 +34,8 @@ export function setUpDecoding(
   try {
     const zSvg = el(box, 'svg.z-space') as SVGSVGElement;
     const reconCanvas = el(box, 'canvas.reconstruction') as HTMLCanvasElement;
-    const z0Span: HTMLSpanElement = el(box, '.z0') as HTMLSpanElement;
-    const z1Span: HTMLSpanElement = el(box, '.z1') as HTMLSpanElement;
+    const z0Span: HTMLSpanElement = el(box, 'span.z0') as HTMLSpanElement;
+    const z1Span: HTMLSpanElement = el(box, 'span.z1') as HTMLSpanElement;
     const margins = { top: 10, right: 40, bottom: 40, left: 40 };
 
     // Add standard Gaussian heatmap to the SVG
