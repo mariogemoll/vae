@@ -87,14 +87,10 @@ def random_string(length=10):
     return "".join(random.choice(letters) for _ in range(length))
 
 
-def onnx_export(vae):
+def onnx_export_to_files(vae, encoder_path, decoder_path):
     """
-    Exports the VAE encoder and decoder to ONNX format.
+    Exports the VAE encoder and decoder to ONNX format and stores them at the specified paths.
     """
-
-    encoder_path = "/tmp/encoder_" + random_string() + ".onnx"
-    decoder_path = "/tmp/decoder_" + random_string() + ".onnx"
-
     # Dummy image input
     encoder_dummy_input = torch.randn(1, 3, 32, 32)
 
@@ -126,6 +122,17 @@ def onnx_export(vae):
         dynamic_axes={"z": {0: "batch_size"}, "reconstruction": {0: "batch_size"}},
         opset_version=14,
     )
+
+
+def onnx_export(vae):
+    """
+    Exports the VAE encoder and decoder to ONNX format and returns it as base64 encoded strings.
+    """
+
+    encoder_path = "/tmp/encoder_" + random_string() + ".onnx"
+    decoder_path = "/tmp/decoder_" + random_string() + ".onnx"
+
+    onnx_export_to_files(vae, encoder_path, decoder_path)
 
     encoder_base64 = read_as_base64(encoder_path)
     decoder_base64 = read_as_base64(decoder_path)

@@ -80,11 +80,22 @@ class AreaSelectionWidget(anywidget.AnyWidget):
         self.height = initial_height
 
 
-def dataset_visualization(trainset_coords, valset_coords, trainset, valset):
+def dataset_visualization(trainset_coords, valset_coords, trainset, valset, write_to_files=False):
     trainset_coords_x, trainset_coords_y = stringify_coords(trainset_coords)
     valset_coords_x, valset_coords_y = stringify_coords(valset_coords)
-    trainset_images_base64 = b64encode(trainset.numpy().tobytes()).decode("ascii")
-    valset_images_base64 = b64encode(valset.numpy().tobytes()).decode("ascii")
+    trainset_images_bytes = trainset.numpy().tobytes()
+    valset_images_bytes = valset.numpy().tobytes()
+    if write_to_files:
+        with open("trainset_coords.json", "w") as f:
+            f.write(f'{{"x": [{trainset_coords_x}], "y": [{trainset_coords_y}]}}')
+        with open("valset_coords.json", "w") as f:
+            f.write(f'{{"x": [{valset_coords_x}], "y": [{valset_coords_y}]}}')
+        with open("trainset_images.bin", "wb") as f:
+            f.write(trainset_images_bytes)
+        with open("valset_images.bin", "wb") as f:
+            f.write(valset_images_bytes)
+    trainset_images_base64 = b64encode(trainset_images_bytes).decode("ascii")
+    valset_images_base64 = b64encode(valset_images_bytes).decode("ascii")
 
     html, js = get_html_and_js("datasetvisualization")
 
