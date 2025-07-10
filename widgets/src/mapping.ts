@@ -6,12 +6,13 @@ import { renderSample } from './dataset.js';
 import { drawImage } from './drawimage.js';
 import { drawGrid } from './grid.js';
 import { setUpRemoteControlledDot } from './rcdot.js';
-import { addFrame } from './svg.js';
+import { addFrame, rectPath } from './svg.js';
 import { setUp2dSelectorWithLabels } from './twodselector.js';
+import type { Margins } from './types/margins.js';
 import type { OrtFunction } from './types/ortfunction';
 import type { Pair } from './types/pair';
 import {
-  addMarginToRange, el, loadImage, mapPair, midRangeValue, writePixelValues
+  addMarginToRange, el, getAttribute, loadImage, mapPair, mapRange, midRangeValue, writePixelValues
 } from './util.js';
 
 const extendedSizeRange: Pair<number> = addMarginToRange(sizeRange, 0.2);
@@ -44,6 +45,44 @@ function logVarToStdDev(logvar: number): number {
   return stdDev;
 }
 
+function addTrainingSetRect(
+  svg: SVGSVGElement,
+  margins: Margins,
+  valsetBounds: Pair<Pair<number>>
+): void {
+
+  const svgWidth = parseFloat(getAttribute(svg, 'width'));
+  const svgHeight = parseFloat(getAttribute(svg, 'height'));
+  const sizeScale = mapRange.bind(
+    null, extendedSizeRange, [margins.left, svgWidth - margins.right]
+  );
+  const hueScale = mapRange.bind(
+    null, extendedHueRange, [svgHeight - margins.bottom, margins.top]
+  );
+
+  const sizeRangeMapped = mapPair(sizeScale, sizeRange);
+  const hueRangeMapped = mapPair(hueScale, hueRange);
+
+  const valsetSizeRangeMapped = mapPair(sizeScale, valsetBounds[0]);
+  const valsetHueRangeMapped = mapPair(hueScale, valsetBounds[1]);
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  const trainsetRectPath = rectPath(
+    [sizeRangeMapped[0], hueRangeMapped[0]],
+    [sizeRangeMapped[1], hueRangeMapped[1]]
+  );
+  const valsetRectPath = rectPath(
+    [valsetSizeRangeMapped[0], valsetHueRangeMapped[0]],
+    [valsetSizeRangeMapped[1], valsetHueRangeMapped[1]]
+  );
+  // Combine the two rectangles into a path with fill rule evenodd, this way the valset rectangle
+  // will be cut out of the trainset rectangle
+  path.setAttribute('d', [trainsetRectPath, valsetRectPath].join(' '));
+  path.setAttribute('fill', '#eee');
+  path.setAttribute('fill-rule', 'evenodd');
+  svg.appendChild(path);
+}
+
 export async function setUpMapping(
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
   ort: typeof import('onnxruntime-web'),
@@ -51,6 +90,7 @@ export async function setUpMapping(
   decode: OrtFunction,
   picaInstance: pica.Pica,
   faceImgUrl: string,
+  valsetBounds: Pair<Pair<number>>,
   alphaGrid: Pair<number>[][],
   zGrid: Pair<number>[][],
   box: HTMLDivElement
@@ -68,7 +108,8 @@ export async function setUpMapping(
   const reconCtx = getContext(reconCanvas);
 
   const margins = { top: 10, right: 40, bottom: 40, left: 40 };
-  const faceImg = await loadImage(faceImgUrl);
+
+  addTrainingSetRect(alphaSvg, margins, valsetBounds);
 
   drawGrid(alphaSvg, margins, [extendedSizeRange, extendedHueRange], 'grey', alphaGrid);
 
@@ -83,6 +124,7 @@ export async function setUpMapping(
     [1.0, 1.0]
   );
 
+  const faceImg = await loadImage(faceImgUrl);
   async function update(size: number, hue: number): Promise<void> {
     await renderSample(picaInstance, hiresCanvas, xCanvas, faceImg, size, hue);
     const [mu, logvar] = await encodeImg(ort, encode, xCanvas, singleImgArr);

@@ -133,3 +133,11 @@ export function addFrame(
   // Add right border line
   addVerticalLine(svg, 'black', width - margins.right, [margins.top, height - margins.bottom]);
 }
+
+export function rectPath([x0, y0]: Pair<number>, [x1, y1]: Pair<number>): string {
+  const x0Str = x0.toFixed(2);
+  const y0Str = y0.toFixed(2);
+  const x1Str = x1.toFixed(2);
+  const y1Str = y1.toFixed(2);
+  return `M${x0Str},${y0Str} H${x1Str} V${y1Str} H${x0Str} Z`;
+}

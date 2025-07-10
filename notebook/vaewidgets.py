@@ -102,7 +102,7 @@ def dataset_visualization(trainset_coords, valset_coords, trainset, valset):
     )
 
 
-def mapping(encoder_base64, decoder_base64):
+def mapping(encoder_base64, decoder_base64, valset_bounds):
     html, js = get_html_and_js("mapping")
     face_img_base64_url = get_face_img_base64_url()
     return widget(
@@ -111,6 +111,7 @@ def mapping(encoder_base64, decoder_base64):
         var encoderBase64 = '{encoder_base64}';
         var decoderBase64 = '{decoder_base64}';
         var faceImgUrl = '{face_img_base64_url}';
+        var valsetBounds = {valset_bounds};
         {js}
     """,
     )

@@ -3,6 +3,7 @@ import pica from 'pica';
 import { hueRange,sizeRange } from 'widgets/constants';
 import { encodeGrid, makeStandardGrid } from 'widgets/grid';
 import { setUpMapping as setUpMappingInternal } from 'widgets/mapping';
+import type { Pair } from 'widgets/types/pair';
 import { addErrorMessage, loadImage } from 'widgets/util';
 
 import { makeGuardedDecode } from './decode';
@@ -11,6 +12,7 @@ import { getPreviousElementSibling } from './util';
 
 /* eslint-disable no-var */
 declare var faceImgUrl: string;
+declare var valsetBounds: Pair<Pair<number>>;
 var mappingContainer = getPreviousElementSibling() as HTMLDivElement;
 var settingUpMapping = false;
 /* eslint-enable no-var */
@@ -32,7 +34,7 @@ async function setUpMapping(): Promise<void> {
   const zGrid = await encodeGrid(ort, picaInstance, img, encode, alphaGrid);
 
   await setUpMappingInternal(
-    ort, encode, decode, picaInstance, faceImgUrl, alphaGrid, zGrid, mappingContainer
+    ort, encode, decode, picaInstance, faceImgUrl, valsetBounds, alphaGrid, zGrid, mappingContainer
   );
   settingUpMapping = false;
 }
