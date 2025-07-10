@@ -12,7 +12,8 @@ import type { Margins } from './types/margins.js';
 import type { OrtFunction } from './types/ortfunction';
 import type { Pair } from './types/pair';
 import {
-  addMarginToRange, el, getAttribute, loadImage, mapPair, mapRange, midRangeValue, writePixelValues
+  addErrorMessage, addMarginToRange, el, getAttribute, loadImage, mapPair, mapRange, midRangeValue,
+  writePixelValues
 } from './util.js';
 
 const extendedSizeRange: Pair<number> = addMarginToRange(sizeRange, 0.2);
@@ -95,85 +96,94 @@ export async function setUpMapping(
   zGrid: Pair<number>[][],
   box: HTMLDivElement
 ): Promise<void> {
-  const alphaSvg = el(box, '.alpha-space') as SVGSVGElement;
-  const sizeSpan = el(box, '.size span') as HTMLSpanElement;
-  const hueSpan = el(box, '.hue span') as HTMLSpanElement;
-  const xCanvas = el(box, '.pic-x') as HTMLCanvasElement;
-  const zSvg = el(box, '.z-space') as SVGSVGElement;
-  const z0MuCell = el(box, '.z0-mu span') as HTMLSpanElement;
-  const z1MuCell = el(box, '.z1-mu span') as HTMLSpanElement;
-  const z0StdDevCell = el(box, '.z0-std-dev') as HTMLSpanElement;
-  const z1StdDevCell = el(box, '.z1-std-dev') as HTMLSpanElement;
-  const reconCanvas = el(box, '.reconstruction') as HTMLCanvasElement;
-  const reconCtx = getContext(reconCanvas);
+  try {
+    const alphaSvg = el(box, '.alpha-space') as SVGSVGElement;
+    const sizeSpan = el(box, '.size span') as HTMLSpanElement;
+    const hueSpan = el(box, '.hue span') as HTMLSpanElement;
+    const xCanvas = el(box, '.pic-x') as HTMLCanvasElement;
+    const zSvg = el(box, '.z-space') as SVGSVGElement;
+    const z0MuCell = el(box, '.z0-mu span') as HTMLSpanElement;
+    const z1MuCell = el(box, '.z1-mu span') as HTMLSpanElement;
+    const z0StdDevCell = el(box, '.z0-std-dev') as HTMLSpanElement;
+    const z1StdDevCell = el(box, '.z1-std-dev') as HTMLSpanElement;
+    const reconCanvas = el(box, '.reconstruction') as HTMLCanvasElement;
+    const reconCtx = getContext(reconCanvas);
 
-  const margins = { top: 10, right: 40, bottom: 40, left: 40 };
+    const margins = { top: 10, right: 40, bottom: 40, left: 40 };
 
-  addTrainingSetRect(alphaSvg, margins, valsetBounds);
+    addTrainingSetRect(alphaSvg, margins, valsetBounds);
 
-  drawGrid(alphaSvg, margins, [extendedSizeRange, extendedHueRange], 'grey', alphaGrid);
+    drawGrid(alphaSvg, margins, [extendedSizeRange, extendedHueRange], 'grey', alphaGrid);
 
-  drawGrid(zSvg, margins, [zRange, zRange], 'grey', zGrid);
+    drawGrid(zSvg, margins, [zRange, zRange], 'grey', zGrid);
 
-  // TODO Calculate initial mu and stdDev values
-  const updateZ = setUpRemoteControlledDot(
-    zSvg,
-    margins,
-    [zRange, zRange],
-    [0.0, 0.0],
-    [1.0, 1.0]
-  );
+    // TODO Calculate initial mu and stdDev values
+    const updateZ = setUpRemoteControlledDot(
+      zSvg,
+      margins,
+      [zRange, zRange],
+      [0.0, 0.0],
+      [1.0, 1.0]
+    );
 
-  const faceImg = await loadImage(faceImgUrl);
-  async function update(size: number, hue: number): Promise<void> {
-    await renderSample(picaInstance, hiresCanvas, xCanvas, faceImg, size, hue);
-    const [mu, logvar] = await encodeImg(ort, encode, xCanvas, singleImgArr);
-    const stdDev = mapPair(logVarToStdDev, logvar);
-    z0MuCell.textContent = mu[0].toFixed(2);
-    z1MuCell.textContent = mu[1].toFixed(2);
-    z0StdDevCell.textContent = stdDev[0].toFixed(2);
-    z1StdDevCell.textContent = stdDev[1].toFixed(2);
-    updateZ(mu, mapPair((x) => x * stdDevMultiplier, stdDev));
-    const zTensor = new ort.Tensor('float32', new Float32Array(mu), [
-      1, mu.length
-    ]);
-    const reconResult = await decode(zTensor);
-    drawImage(reconCtx, reconResult.reconstruction.data as Float32Array);
-    working = false;
-  }
-
-
-  const hiresCanvas = document.createElement('canvas');
-  hiresCanvas.width = 128;
-  hiresCanvas.height = 128;
-
-  const singleImgArr = new Float32Array(1 * 3 * 32 * 32); // 3 channels, 32x32 pixels
-  let working = false;
-
-  addFrame(alphaSvg, margins, extendedSizeRange, extendedHueRange, 8);
-
-  addFrame(zSvg, margins, zRange, zRange, 5);
-
-  setUp2dSelectorWithLabels(
-    alphaSvg,
-    margins,
-    extendedSizeRange,
-    extendedHueRange,
-    sizeSpan,
-    hueSpan,
-    midRangeValue(extendedSizeRange),
-    midRangeValue(extendedHueRange),
-    (size: number, hue: number) => {
-      if (working) {
-        return; // Prevent multiple simultaneous renders
-      }
-      working = true;
-      (async function(): Promise<void> {
-        await update(size, hue);
-        working = false;
-      })().catch((error: unknown) => {
-        console.error('Error updating sample:', error);
-      });
+    const faceImg = await loadImage(faceImgUrl);
+    async function update(size: number, hue: number): Promise<void> {
+      await renderSample(picaInstance, hiresCanvas, xCanvas, faceImg, size, hue);
+      const [mu, logvar] = await encodeImg(ort, encode, xCanvas, singleImgArr);
+      const stdDev = mapPair(logVarToStdDev, logvar);
+      z0MuCell.textContent = mu[0].toFixed(2);
+      z1MuCell.textContent = mu[1].toFixed(2);
+      z0StdDevCell.textContent = stdDev[0].toFixed(2);
+      z1StdDevCell.textContent = stdDev[1].toFixed(2);
+      updateZ(mu, mapPair((x) => x * stdDevMultiplier, stdDev));
+      const zTensor = new ort.Tensor('float32', new Float32Array(mu), [
+        1, mu.length
+      ]);
+      const reconResult = await decode(zTensor);
+      drawImage(reconCtx, reconResult.reconstruction.data as Float32Array);
+      working = false;
     }
-  );
+
+
+    const hiresCanvas = document.createElement('canvas');
+    hiresCanvas.width = 128;
+    hiresCanvas.height = 128;
+
+    const singleImgArr = new Float32Array(1 * 3 * 32 * 32); // 3 channels, 32x32 pixels
+    let working = false;
+
+    addFrame(alphaSvg, margins, extendedSizeRange, extendedHueRange, 8);
+
+    addFrame(zSvg, margins, zRange, zRange, 5);
+
+    setUp2dSelectorWithLabels(
+      alphaSvg,
+      margins,
+      extendedSizeRange,
+      extendedHueRange,
+      sizeSpan,
+      hueSpan,
+      midRangeValue(extendedSizeRange),
+      midRangeValue(extendedHueRange),
+      (size: number, hue: number) => {
+        if (working) {
+          return; // Prevent multiple simultaneous renders
+        }
+        working = true;
+        (async function(): Promise<void> {
+          await update(size, hue);
+          working = false;
+        })().catch((error: unknown) => {
+          console.error('Error updating sample:', error);
+        });
+      }
+    );
+  } catch (error: unknown) {
+    console.error('Error setting up mapping widget:', error);
+    let msg = 'Unknown error';
+    if (error instanceof Error) {
+      msg = error.message;
+    }
+    addErrorMessage(box, `Error setting up mapping widget: ${msg}`);
+  }
 }
