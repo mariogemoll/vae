@@ -1,5 +1,3 @@
-import fromBase64 from 'es-arraybuffer-base64/Uint8Array.fromBase64';
-
 import { addFrame,getContext } from './canvas.js';
 import { hueRange, sizeRange } from './constants.js';
 import type { Pair } from './types/pair.js';
@@ -11,7 +9,6 @@ function setUpUi(
   allLabels: string[]): void {
   const scatterCtx = getContext(scatterCanvas);
   const imageCtx = getContext(imageCanvas);
-
 
   const margins = { top: 10, right: 40, bottom: 50, left: 40 };
 
@@ -134,23 +131,23 @@ function setUpUi(
 
 export function setUpDatasetVisualization(
   box: HTMLDivElement, trainsetX: number[], trainsetY: number[], valsetX: number[],
-  valsetY: number[], trainsetImagesBase64: string, valsetImagesBase64: string): void {
+  valsetY: number[], trainsetImages: Uint8Array, valsetImages: Uint8Array): void {
   try {
     const alphaCanvas: HTMLCanvasElement = el(box, 'canvas.alpha-space') as HTMLCanvasElement;
     const imgCanvas: HTMLCanvasElement = el(box, 'canvas.pic') as HTMLCanvasElement;
     const sizeSpan: HTMLSpanElement = el(box, 'span.size') as HTMLSpanElement;
     const hueSpan: HTMLSpanElement = el(box, 'span.hue') as HTMLSpanElement;
 
-    const data: Record<string, { X: number[], Y: number[], images: string }> = {
+    const data: Record<string, { X: number[], Y: number[], images: Uint8Array }> = {
       'train': {
         'X': trainsetX,
         'Y': trainsetY,
-        'images': trainsetImagesBase64
+        'images': trainsetImages
       },
       'val': {
         'X': valsetX,
         'Y': valsetY,
-        'images': valsetImagesBase64
+        'images': valsetImages
       }
     };
 
@@ -169,7 +166,7 @@ export function setUpDatasetVisualization(
         allLabels.push(label);
       }
 
-      const imageBytes: Uint8Array = fromBase64(data[label].images);
+      const imageBytes = data[label].images;
       for (let i = 0; i < imageBytes.length; i += 3072) {
         const rgbBytes = imageBytes.slice(i, i + 3072);
         const flatImage = new Uint8Array(rgbBytes);
