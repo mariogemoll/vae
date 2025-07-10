@@ -105,7 +105,7 @@ export function getAttribute(element: Element, attribute: string): string {
 
 export function addErrorMessage(el: HTMLElement, msg: string): HTMLElement {
   const p = document.createElement('p');
-  p.textContent = `Error setting up mapping widget: ${msg}`;
+  p.textContent = msg;
   p.style.color = 'red';
   p.style.fontWeight = 'bold';
   el.appendChild(p);
