@@ -1,8 +1,8 @@
 import pica from 'pica';
 import { hueRange,sizeRange } from 'widgets/constants';
 import { setUpDatasetExplanation } from 'widgets/datasetexplanation';
+import { addErrorMessage } from 'widgets/dom';
 import { makeStandardGrid } from 'widgets/grid';
-import { addErrorMessage } from 'widgets/util';
 
 import { getPreviousElementSibling } from './util';
 

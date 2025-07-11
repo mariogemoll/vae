@@ -1,8 +1,10 @@
 import type pica from 'pica';
 
 import { getContext } from './canvas.js';
+import { addImgCanvas, addSpaceSvg, addTwoLabeledTextFields } from './commonelements.js';
 import { hueRange, sizeRange, zRange } from './constants.js';
 import { renderSample } from './dataset.js';
+import { addDiv, addEl, addErrorMessage, addTd, makeCanvas,removePlaceholder } from './dom.js';
 import { drawImage } from './drawimage.js';
 import { drawGrid } from './grid.js';
 import { setUpRemoteControlledDot } from './rcdot.js';
@@ -12,7 +14,7 @@ import type { Margins } from './types/margins.js';
 import type { OrtFunction } from './types/ortfunction';
 import type { Pair } from './types/pair';
 import {
-  addErrorMessage, addMarginToRange, el, getAttribute, loadImage, mapPair, mapRange, midRangeValue,
+  addMarginToRange, getAttribute, loadImage, mapPair, mapRange, midRangeValue,
   writePixelValues
 } from './util.js';
 
@@ -84,6 +86,43 @@ function addTrainingSetRect(
   svg.appendChild(path);
 }
 
+function addDataRow(parent: HTMLElement, label: string): Pair<HTMLTableCellElement> {
+
+  const row = addEl(parent, 'tr', {}, { backgroundColor: 'white' });
+  const stdDevLabelCell = addTd(row, {}, { textAlign: 'left', height: '20px', padding: '0' });
+  stdDevLabelCell.textContent = label;
+  return [
+    addTd(row, {}, { textAlign: 'right', padding: '0' }),
+    addTd(row, {}, { textAlign: 'right', padding: '0' })
+  ];
+}
+
+function addZInfoTable(
+  parent: HTMLElement
+): [HTMLTableCellElement, HTMLTableCellElement, HTMLTableCellElement, HTMLTableCellElement] {
+  const table = addEl(parent, 'table', {}, {
+    position: 'absolute',
+    top: '240px',
+    left: '392px',
+    tableLayout: 'fixed',
+    width: '100px',
+    borderCollapse: 'collapse'
+  });
+
+  const headerRow = addEl(table, 'tr', {}, { backgroundColor: 'white' });
+  addTd(headerRow, {}, { width: '20px', height: '20px', padding: '0' });
+
+  for (const subscript of ['0', '1']) {
+    const cell = addTd(headerRow, {}, { textAlign: 'center', padding: '0' });
+    cell.appendChild(document.createTextNode('z'));
+    addEl(cell, 'sub', {}, {}).textContent = subscript;
+  }
+
+  const [z0MuCell, z1MuCell] = addDataRow(table, 'μ');
+  const [z0StdDevCell, z1StdDevCell] = addDataRow(table, 'σ');
+  return [z0MuCell, z1MuCell, z0StdDevCell, z1StdDevCell];
+}
+
 export async function setUpMapping(
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
   ort: typeof import('onnxruntime-web'),
@@ -97,16 +136,18 @@ export async function setUpMapping(
   box: HTMLDivElement
 ): Promise<void> {
   try {
-    const alphaSvg = el(box, '.alpha-space') as SVGSVGElement;
-    const sizeSpan = el(box, 'span.size') as HTMLSpanElement;
-    const hueSpan = el(box, 'span.hue') as HTMLSpanElement;
-    const xCanvas = el(box, '.pic-x') as HTMLCanvasElement;
-    const zSvg = el(box, '.z-space') as SVGSVGElement;
-    const z0MuCell = el(box, '.z0-mu span') as HTMLSpanElement;
-    const z1MuCell = el(box, '.z1-mu span') as HTMLSpanElement;
-    const z0StdDevCell = el(box, '.z0-std-dev') as HTMLSpanElement;
-    const z1StdDevCell = el(box, '.z1-std-dev') as HTMLSpanElement;
-    const reconCanvas = el(box, '.reconstruction') as HTMLCanvasElement;
+    removePlaceholder(box);
+
+    const widget = addDiv(box, {}, { height: '300px', position: 'relative' });
+
+    const alphaSvg = addSpaceSvg(widget, 0);
+    const [sizeSpan, hueSpan] = addTwoLabeledTextFields(widget, 'Size', 'Hue');
+    const xCanvas = addImgCanvas(widget, 288);
+
+    const zSvg = addSpaceSvg(widget, 354);
+
+    const [z0MuCell, z1MuCell, z0StdDevCell, z1StdDevCell] = addZInfoTable(widget);
+    const reconCanvas = addImgCanvas(widget, 634);
     const reconCtx = getContext(reconCanvas);
 
     const margins = { top: 10, right: 40, bottom: 40, left: 40 };
@@ -144,10 +185,7 @@ export async function setUpMapping(
       working = false;
     }
 
-
-    const hiresCanvas = document.createElement('canvas');
-    hiresCanvas.width = 128;
-    hiresCanvas.height = 128;
+    const hiresCanvas = makeCanvas({ width: '128', height: '128' }, {});
 
     const singleImgArr = new Float32Array(1 * 3 * 32 * 32); // 3 channels, 32x32 pixels
     let working = false;

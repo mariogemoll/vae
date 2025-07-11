@@ -1,7 +1,9 @@
 import { addFrame,getContext } from './canvas.js';
+import { addImgCanvas, addTwoLabeledTextFields } from './commonelements.js';
 import { hueRange, sizeRange } from './constants.js';
+import { addCanvas, addDiv, addErrorMessage, removePlaceholder } from './dom.js';
 import type { Pair } from './types/pair.js';
-import { addErrorMessage, el, mapRange } from './util.js';
+import { mapRange } from './util.js';
 
 function setUpUi(
   scatterCanvas: HTMLCanvasElement, imageCanvas: HTMLCanvasElement, sizeValueSpan: HTMLSpanElement,
@@ -133,10 +135,16 @@ export function setUpDatasetVisualization(
   box: HTMLDivElement, trainsetX: number[], trainsetY: number[], valsetX: number[],
   valsetY: number[], trainsetImages: Uint8Array, valsetImages: Uint8Array): void {
   try {
-    const alphaCanvas: HTMLCanvasElement = el(box, 'canvas.alpha-space') as HTMLCanvasElement;
-    const imgCanvas: HTMLCanvasElement = el(box, 'canvas.pic') as HTMLCanvasElement;
-    const sizeSpan: HTMLSpanElement = el(box, 'span.size') as HTMLSpanElement;
-    const hueSpan: HTMLSpanElement = el(box, 'span.hue') as HTMLSpanElement;
+    removePlaceholder(box);
+    const widget = addDiv(box, {}, { height: '300px', position: 'relative' });
+
+    const alphaCanvas = addCanvas(
+      widget, { width: '280', height: '250' }, { position: 'absolute', cursor: 'crosshair' }
+    );
+
+    const [sizeSpan, hueSpan] = addTwoLabeledTextFields(widget, 'Size', 'Hue');
+    const imgCanvas = addImgCanvas(widget, 288);
+
 
     const data: Record<string, { X: number[], Y: number[], images: Uint8Array }> = {
       'train': {

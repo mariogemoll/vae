@@ -2,8 +2,9 @@ import * as ort from 'onnxruntime-web';
 import pica from 'pica';
 import { hueRange,sizeRange } from 'widgets/constants';
 import { setUpDecoding as setUpDecodingInternal } from 'widgets/decoding';
+import { addErrorMessage } from 'widgets/dom';
 import { encodeGrid, makeStandardGrid } from 'widgets/grid';
-import { addErrorMessage, loadImage } from 'widgets/util';
+import { loadImage } from 'widgets/util';
 
 import { makeGuardedDecode } from './decode';
 import { makeGuardedEncode } from './encode';

@@ -1,6 +1,33 @@
 import type { Margins } from './types/margins.js';
 import type { Pair } from './types/pair.js';
-import { getAttribute, mapRange } from './util.js';
+import { generateTicks, getAttribute, mapRange } from './util.js';
+
+export function addSvg(
+  parent: HTMLElement, attrs: Record<string, string>, style: Partial<CSSStyleDeclaration>
+): SVGSVGElement {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  for (const [key, value] of Object.entries(attrs)) {
+    el.setAttribute(key, value);
+  }
+  Object.assign(el.style, style);
+  parent.appendChild(el);
+  return el;
+}
+
+export function addSvgEl(
+  parent: SVGElement,
+  tagName: string,
+  attrs: Record<string, string>,
+  style: Partial<CSSStyleDeclaration> = {}
+): SVGElement {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', 'tagName');
+  for (const [key, value] of Object.entries(attrs)) {
+    el.setAttribute(key, value);
+  }
+  Object.assign(el.style, style);
+  parent.appendChild(el);
+  return el;
+}
 
 export function addLine(
   svg: SVGSVGElement, stroke: string, [x1, y1]: Pair<number>, [x2, y2]: Pair<number>
@@ -87,18 +114,6 @@ export function addText(
   return text;
 }
 
-function generateTicks(range: [number, number], count: number): number[] {
-  const [min, max] = range;
-  const step = (max - min) / (count - 1);
-  const tickValues: number[] = [];
-
-  for (let i = 0; i < count; i++) {
-    tickValues.push(min + i * step);
-  }
-
-  return tickValues;
-}
-
 export function addFrame(
   svg: SVGSVGElement, margins: Margins, xRange: Pair<number>, yRange: Pair<number>, numTicks: number
 ): void {
@@ -116,7 +131,6 @@ export function addFrame(
     addVerticalLine(svg, 'black', x, [height - margins.bottom, height - margins.bottom + 6]);
     addText(svg, 'middle', x, height - margins.bottom + 18, tickValue.toFixed(1));
   });
-
 
   // y axis
   addVerticalLine(svg, 'black', margins.left, [margins.top, height - margins.bottom]);

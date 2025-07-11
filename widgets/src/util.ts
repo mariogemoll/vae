@@ -103,11 +103,14 @@ export function getAttribute(element: Element, attribute: string): string {
   return value;
 }
 
-export function addErrorMessage(el: HTMLElement, msg: string): HTMLElement {
-  const p = document.createElement('p');
-  p.textContent = msg;
-  p.style.color = 'red';
-  p.style.fontWeight = 'bold';
-  el.appendChild(p);
-  return p;
+export function generateTicks(range: [number, number], count: number): number[] {
+  const [min, max] = range;
+  const step = (max - min) / (count - 1);
+  const tickValues: number[] = [];
+
+  for (let i = 0; i < count; i++) {
+    tickValues.push(min + i * step);
+  }
+
+  return tickValues;
 }

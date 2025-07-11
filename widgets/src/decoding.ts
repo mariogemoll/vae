@@ -1,5 +1,7 @@
 import { getContext } from './canvas.js';
+import { addImgCanvas, addSpaceSvg, addTwoLabeledTextFields } from './commonelements.js';
 import { zRange } from './constants.js';
+import { addDiv, addErrorMessage, removePlaceholder } from './dom.js';
 import { drawImage } from './drawimage.js';
 import { drawGrid } from './grid.js';
 import { getStandardGaussianHeatmap } from './standardgaussianheatmap.js';
@@ -7,7 +9,7 @@ import { addFrame } from './svg.js';
 import { setUp2dSelectorWithLabels } from './twodselector.js';
 import type { OrtFunction } from './types/ortfunction.js';
 import type { Pair } from './types/pair.js';
-import { addErrorMessage, el, midRangeValue } from './util.js';
+import { midRangeValue } from './util.js';
 
 function addStandardGaussianHeatmap(svg: SVGSVGElement, x: number, y: number): void {
   const width = 200; // Width of the heatmap
@@ -32,10 +34,12 @@ export function setUpDecoding(
   box: HTMLDivElement
 ): void {
   try {
-    const zSvg = el(box, 'svg.z-space') as SVGSVGElement;
-    const reconCanvas = el(box, 'canvas.reconstruction') as HTMLCanvasElement;
-    const z0Span: HTMLSpanElement = el(box, 'span.z0') as HTMLSpanElement;
-    const z1Span: HTMLSpanElement = el(box, 'span.z1') as HTMLSpanElement;
+    removePlaceholder(box);
+    const widget = addDiv(box, {}, { height: '300px', position: 'relative' });
+
+    const zSvg = addSpaceSvg(widget, 0);
+    const reconCanvas = addImgCanvas(widget, 288);
+    const [z0Span, z1Span] = addTwoLabeledTextFields(widget, 'z₀', 'z₁');
     const margins = { top: 10, right: 40, bottom: 40, left: 40 };
 
     // Add standard Gaussian heatmap to the SVG

@@ -13,13 +13,9 @@ def stringify_coords(coords: list[tuple[float, float]]) -> Tuple[str, str]:
     return x_str, y_str
 
 
-def get_html_and_js(label: str) -> Tuple[str, str]:
-    with open(f"../widgets/html/{label}.html") as html_file, open(
-        f"widget-wrappers/dist/{label}.js"
-    ) as js_file:
-        html = html_file.read()
-        js = js_file.read()
-    return html, js
+def get_js(label: str) -> str:
+    with open(f"widget-wrappers/dist/{label}.js") as js_file:
+        return js_file.read()
 
 
 def get_face_img_base64_url() -> str:
@@ -28,20 +24,19 @@ def get_face_img_base64_url() -> str:
     return f"data:image/png;base64,{face_img_base64}"
 
 
-def widget(html: str, js: str) -> HTML:
+def widget(js: str) -> HTML:
     return HTML(  # type: ignore[no-untyped-call]
         f"""
-    {html}
+    <div style="height: 300px"></div>
     <script>{js}</script>
     """
     )
 
 
 def dataset_explanation() -> HTML:
-    html, js = get_html_and_js("datasetexplanation")
+    js = get_js("datasetexplanation")
     face_img_base64_url = get_face_img_base64_url()
     return widget(
-        html,
         f"""
         var faceImgUrl = '{face_img_base64_url}';
         {js}
@@ -105,10 +100,9 @@ def dataset_visualization(
     trainset_images_base64 = b64encode(trainset_images_bytes).decode("ascii")
     valset_images_base64 = b64encode(valset_images_bytes).decode("ascii")
 
-    html, js = get_html_and_js("datasetvisualization")
+    js = get_js("datasetvisualization")
 
     return widget(
-        html,
         f"""
         var datasetVisualizationTrainsetX = [{trainset_coords_x}];
         var datasetVisualizationTrainsetY = [{trainset_coords_y}];
@@ -126,10 +120,9 @@ def mapping(
     decoder_base64: str,
     valset_bounds: tuple[tuple[float, float], tuple[float, float]],
 ) -> HTML:
-    html, js = get_html_and_js("mapping")
+    js = get_js("mapping")
     face_img_base64_url = get_face_img_base64_url()
     return widget(
-        html,
         f"""
         var encoderBase64 = '{encoder_base64}';
         var decoderBase64 = '{decoder_base64}';
@@ -141,10 +134,9 @@ def mapping(
 
 
 def decoding(encoder_base64: str, decoder_base64: str) -> HTML:
-    html, js = get_html_and_js("decoding")
+    js = get_js("decoding")
     face_img_base64_url = get_face_img_base64_url()
     return widget(
-        html,
         f"""
         var encoderBase64 = '{encoder_base64}';
         var decoderBase64 = '{decoder_base64}';
