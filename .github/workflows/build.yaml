@@ -15,10 +15,20 @@ jobs:
       with:
         python-version: "3.13"
 
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install libcairo2-dev pkg-config python3-dev
+
     - name: Install Python dependencies
       working-directory: notebook
       run: |
+        pip install -r requirements-build.txt
         pip install -r requirements-check.txt
+
+    - name: Install PyTorch (CPU only version)
+      working-directory: notebook
+      run: pip install "torch>=2,<3" --index-url https://download.pytorch.org/whl/cpu
 
     - name: Run flake8
       working-directory: notebook
@@ -31,6 +41,10 @@ jobs:
     - name: Run black (check only)
       working-directory: notebook
       run: black --check --diff .
+
+    - name: Run mypy
+      working-directory: notebook
+      run: mypy --strict *.py
 
     - name: Check that the notebook has no output
       working-directory: notebook
