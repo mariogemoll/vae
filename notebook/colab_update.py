@@ -6,7 +6,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
 
-def run():
+def run() -> None:
     if len(sys.argv) != 3:
         print("Usage: python colab_update.py <file_id> <file_path>")
         sys.exit(1)
@@ -14,7 +14,7 @@ def run():
     file_id = sys.argv[1]
     source_path = sys.argv[2]
 
-    credentials = service_account.Credentials.from_service_account_file(
+    credentials = service_account.Credentials.from_service_account_file(  # type: ignore[no-untyped-call] # noqa: E501
         os.environ["SERVICE_ACCOUNT_FILE"], scopes=["https://www.googleapis.com/auth/drive"]
     )
 

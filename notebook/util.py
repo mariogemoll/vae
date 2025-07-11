@@ -1,22 +1,20 @@
 import base64
 import os
+from typing import Iterator
 
 import matplotlib.pyplot as plt
 import torch
 
 from constants import latent_dim
+from protocols import VAEProtocol
 
 
 # function to map value from [0, 1] to the specified range
-def map_value(value_range, value):
+def map_value(value_range: tuple[float, float], value: float) -> float:
     return value_range[0] + (value * (value_range[1] - value_range[0]))
 
 
-def map_tuple(value_range, value_tuple):
-    return tuple(map_value(value_range, v) for v in value_tuple)
-
-
-def in_range(value_range, value):
+def in_range(value_range: tuple[float, float], value: float) -> bool:
     return value_range[0] <= value <= value_range[1]
 
 
@@ -36,17 +34,17 @@ class BatchIterator:
         if self.num_full_batches == 0:
             raise ValueError("Batch size is larger than the dataset size.")
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[torch.Tensor]:
         indices = torch.randperm(self.n)
         for i in range(self.num_full_batches):
             batch_indices = indices[i * self.batch_size : (i + 1) * self.batch_size]
             yield self.data[batch_indices]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.num_full_batches
 
 
-def plot_losses(train_losses, val_losses):
+def plot_losses(train_losses: list[float], val_losses: list[float]) -> None:
     _, ax = plt.subplots()
     ax.plot(train_losses, label="Train loss")
     ax.set_xlabel("Batch")
@@ -56,7 +54,7 @@ def plot_losses(train_losses, val_losses):
     plt.tight_layout()
 
 
-def read_as_base64(file_path):
+def read_as_base64(file_path: str) -> str:
     """
     Reads a file and returns its content as a base64 encoded string.
 
@@ -70,7 +68,7 @@ def read_as_base64(file_path):
         return base64.b64encode(file.read()).decode("ascii")
 
 
-def random_string(length=10):
+def random_string(length: int = 10) -> str:
     """
     Generates a random string of fixed length.
 
@@ -87,17 +85,17 @@ def random_string(length=10):
     return "".join(random.choice(letters) for _ in range(length))
 
 
-def onnx_export_to_files(vae, encoder_path, decoder_path):
+def onnx_export_to_files(vae: VAEProtocol, encoder_path: str, decoder_path: str) -> None:
     """
     Exports the VAE encoder and decoder to ONNX format and stores them at the specified paths.
     """
     # Dummy image input
-    encoder_dummy_input = torch.randn(1, 3, 32, 32)
+    encoder_dummy_input: torch.Tensor = torch.randn(1, 3, 32, 32)
 
     # Export to ONNX
     torch.onnx.export(
         vae.encoder,
-        encoder_dummy_input,
+        (encoder_dummy_input,),
         encoder_path,
         input_names=["image"],
         output_names=["mu", "logvar"],
@@ -110,12 +108,12 @@ def onnx_export_to_files(vae, encoder_path, decoder_path):
     )
 
     # Dummy latent input
-    decoder_dummy_input = torch.randn(1, latent_dim)
+    decoder_dummy_input: torch.Tensor = torch.randn(1, latent_dim)
 
     # Export to ONNX
     torch.onnx.export(
         vae.decoder,
-        decoder_dummy_input,
+        (decoder_dummy_input,),
         decoder_path,
         input_names=["z"],
         output_names=["reconstruction"],
@@ -124,7 +122,7 @@ def onnx_export_to_files(vae, encoder_path, decoder_path):
     )
 
 
-def onnx_export(vae):
+def onnx_export(vae: VAEProtocol) -> tuple[str, str]:
     """
     Exports the VAE encoder and decoder to ONNX format and returns it as base64 encoded strings.
     """

@@ -7,7 +7,13 @@ from image import get_images
 from util import in_range
 
 
-def generate_dataset(size_range, hue_range, valset_size_range, valset_hue_range, num_samples):
+def generate_dataset(
+    size_range: tuple[int, int],
+    hue_range: tuple[float, float],
+    valset_size_range: tuple[int, int],
+    valset_hue_range: tuple[float, float],
+    num_samples: int,
+) -> tuple[list[tuple[float, float]], list[tuple[float, float]], torch.Tensor, torch.Tensor]:
     trainset_coords = []
     valset_coords = []
     for i in range(num_samples):

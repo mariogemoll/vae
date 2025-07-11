@@ -13,7 +13,7 @@ image_width = image_surface.get_width()
 image_height = image_surface.get_height()
 
 
-def get_image(size, hue, sidelength):
+def get_image(size: float, hue: float, sidelength: int) -> np.ndarray:
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, sidelength, sidelength)
     ctx = cairo.Context(surface)
 
@@ -35,17 +35,20 @@ def get_image(size, hue, sidelength):
     img = np.frombuffer(buf, dtype=np.uint8).reshape((sidelength, sidelength, 4)).copy()
 
     # Convert BGRA to RGB and un-premultiply
-    b, g, r, a = img[:, :, 0], img[:, :, 1], img[:, :, 2], img[:, :, 3]
-    rgb = np.stack([r, g, b], axis=-1)
-    alpha = a.astype(np.float32) / 255.0
-    alpha[alpha == 0] = 1.0
-    rgb = rgb.astype(np.float32) / alpha[:, :, None]
-    rgb = np.clip(rgb, 0, 255)
+    blue: np.ndarray = img[:, :, 0]
+    green: np.ndarray = img[:, :, 1]
+    red: np.ndarray = img[:, :, 2]
+    alpha_channel: np.ndarray = img[:, :, 3]
+    rgb = np.stack([red, green, blue], axis=-1)
+    alpha = alpha_channel.astype(np.float32) / 255.0
+    alpha = np.where(alpha == 0.0, 1.0, alpha)
+    rgb_float = rgb.astype(np.float32) / alpha[:, :, None]
+    rgb_clipped = np.clip(rgb_float, 0, 255)
 
-    return rgb.transpose(2, 0, 1).astype(np.uint8)
+    return rgb_clipped.transpose(2, 0, 1).astype(np.uint8)
 
 
-def get_images(sidelength, coords):
+def get_images(sidelength: int, coords: list[tuple[float, float]]) -> np.ndarray:
     data = np.zeros((len(coords), 3, sidelength, sidelength), dtype=np.uint8)
     for i, (size, hue) in enumerate(tqdm(coords)):
         # Convert HSV to RGB

@@ -2,7 +2,7 @@ import json
 import sys
 
 
-def notebook_has_output(path):
+def notebook_has_output(path: str) -> bool:
     with open(path, "r", encoding="utf-8") as f:
         nb = json.load(f)
     for cell in nb.get("cells", []):

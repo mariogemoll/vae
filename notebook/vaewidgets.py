@@ -1,17 +1,19 @@
 from base64 import b64encode
+from typing import Tuple
 
 import anywidget
+import torch
 import traitlets
 from IPython.display import HTML
 
 
-def stringify_coords(coords):
+def stringify_coords(coords: list[tuple[float, float]]) -> Tuple[str, str]:
     x_str = ",".join([f"{x:.3f}" for x, y in coords])
     y_str = ",".join([f"{y:.3f}" for x, y in coords])
     return x_str, y_str
 
 
-def get_html_and_js(label):
+def get_html_and_js(label: str) -> Tuple[str, str]:
     with open(f"../widgets/html/{label}.html") as html_file, open(
         f"widget-wrappers/dist/{label}.js"
     ) as js_file:
@@ -20,14 +22,14 @@ def get_html_and_js(label):
     return html, js
 
 
-def get_face_img_base64_url():
+def get_face_img_base64_url() -> str:
     with open("../misc/face.png", "rb") as f:
         face_img_base64 = b64encode(f.read()).decode("ascii")
     return f"data:image/png;base64,{face_img_base64}"
 
 
-def widget(html, js):
-    return HTML(
+def widget(html: str, js: str) -> HTML:
+    return HTML(  # type: ignore[no-untyped-call]
         f"""
     {html}
     <script>{js}</script>
@@ -35,7 +37,7 @@ def widget(html, js):
     )
 
 
-def dataset_explanation():
+def dataset_explanation() -> HTML:
     html, js = get_html_and_js("datasetexplanation")
     face_img_base64_url = get_face_img_base64_url()
     return widget(
@@ -49,8 +51,8 @@ def dataset_explanation():
 
 class AreaSelectionWidget(anywidget.AnyWidget):
     _esm = "widget-wrappers/dist/areaselection.js"
-    xRange = traitlets.List().tag(sync=True)
-    yRange = traitlets.List().tag(sync=True)
+    xRange: traitlets.Tuple = traitlets.Tuple().tag(sync=True)
+    yRange: traitlets.Tuple = traitlets.Tuple().tag(sync=True)
     xLabel = traitlets.Unicode().tag(sync=True)
     yLabel = traitlets.Unicode().tag(sync=True)
     x = traitlets.Float().tag(sync=True)
@@ -60,15 +62,15 @@ class AreaSelectionWidget(anywidget.AnyWidget):
 
     def __init__(
         self,
-        x_range,
-        y_range,
-        x_label,
-        y_label,
-        initial_x,
-        initial_y,
-        initial_width,
-        initial_height,
-    ):
+        x_range: tuple[float, float],
+        y_range: tuple[float, float],
+        x_label: str,
+        y_label: str,
+        initial_x: float,
+        initial_y: float,
+        initial_width: float,
+        initial_height: float,
+    ) -> None:
         super().__init__()
         self.xRange = x_range
         self.yRange = y_range
@@ -80,7 +82,13 @@ class AreaSelectionWidget(anywidget.AnyWidget):
         self.height = initial_height
 
 
-def dataset_visualization(trainset_coords, valset_coords, trainset, valset, write_to_files=False):
+def dataset_visualization(
+    trainset_coords: list[tuple[float, float]],
+    valset_coords: list[tuple[float, float]],
+    trainset: torch.Tensor,
+    valset: torch.Tensor,
+    write_to_files: bool = False,
+) -> HTML:
     trainset_coords_x, trainset_coords_y = stringify_coords(trainset_coords)
     valset_coords_x, valset_coords_y = stringify_coords(valset_coords)
     trainset_images_bytes = trainset.numpy().tobytes()
@@ -113,7 +121,11 @@ def dataset_visualization(trainset_coords, valset_coords, trainset, valset, writ
     )
 
 
-def mapping(encoder_base64, decoder_base64, valset_bounds):
+def mapping(
+    encoder_base64: str,
+    decoder_base64: str,
+    valset_bounds: tuple[tuple[float, float], tuple[float, float]],
+) -> HTML:
     html, js = get_html_and_js("mapping")
     face_img_base64_url = get_face_img_base64_url()
     return widget(
@@ -128,7 +140,7 @@ def mapping(encoder_base64, decoder_base64, valset_bounds):
     )
 
 
-def decoding(encoder_base64, decoder_base64):
+def decoding(encoder_base64: str, decoder_base64: str) -> HTML:
     html, js = get_html_and_js("decoding")
     face_img_base64_url = get_face_img_base64_url()
     return widget(

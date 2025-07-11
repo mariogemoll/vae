@@ -16,6 +16,6 @@ isort . --check-only --diff
 
 black --check --diff .
 
-pwd
-
 python check_no_output.py notebook.ipynb
+
+mypy *.py
