@@ -1,49 +1,37 @@
 name: Update Colab notebook
-
 on:
   workflow_dispatch:
-
 jobs:
   upload:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install libcairo2-dev pkg-config python3-dev
-
       - name: Install Python dependencies
         working-directory: notebook
         run: pip install -r requirements-build.txt
-
       - name: Install PyTorch (CPU only version)
         working-directory: notebook
         run: pip install "torch>=2,<3" --index-url https://download.pytorch.org/whl/cpu
-
       - name: Write credentials to file
         run: echo '${{ secrets.GOOGLE_CREDENTIALS }}' > /tmp/key.json
-
       - name: Trust the notebook
         working-directory: notebook
         run: jupyter trust notebook.ipynb
-
       - name: Run the notebook
         working-directory: notebook
         run: jupyter execute notebook.ipynb --output=notebook.out.ipynb
-
       - name: Trust the completed notebook
         working-directory: notebook
         run: jupyter trust notebook.out.ipynb
-
       - name: Run notebook upload script
         env:
           SERVICE_ACCOUNT_FILE: /tmp/key.json
