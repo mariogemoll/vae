@@ -1,6 +1,6 @@
 import type { Margins } from './types/margins.js';
 import type { Pair } from './types/pair';
-import { getAttribute, mapRange } from './util.js';
+import { mapRange } from './util.js';
 
 export function setUp2dSelector(
   svg: SVGSVGElement,
@@ -34,14 +34,29 @@ export function setUp2dSelector(
   const dragOffset = { x: 0, y: 0 };
 
   const handleMouseDown = (e: MouseEvent): void => {
-    isDragging = true;
-
     const rect = svg.getBoundingClientRect();
-    const dotX = parseFloat(getAttribute(dot, 'cx'));
-    const dotY = parseFloat(getAttribute(dot, 'cy'));
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
 
-    dragOffset.x = e.clientX - rect.left - dotX;
-    dragOffset.y = e.clientY - rect.top - dotY;
+    // Constrain to chart bounds
+    const constrainedX = Math.max(margins.left, Math.min(width - margins.right, clickX));
+    const constrainedY = Math.max(margins.top, Math.min(height - margins.bottom, clickY));
+
+    // Move dot to clicked position
+    dot.setAttribute('cx', constrainedX.toString());
+    dot.setAttribute('cy', constrainedY.toString());
+
+    // Convert back to data coordinates and call callback
+    if (callback) {
+      const dataX = mapRange([margins.left, width - margins.right], xRange, constrainedX);
+      const dataY = mapRange([height - margins.bottom, margins.top], yRange, constrainedY);
+      callback(dataX, dataY);
+    }
+
+    // Start dragging from the new position
+    isDragging = true;
+    dragOffset.x = 0; // No offset since dot is now at cursor position
+    dragOffset.y = 0;
 
     e.preventDefault();
   };
@@ -74,7 +89,7 @@ export function setUp2dSelector(
   };
 
   // Add event listeners
-  dot.addEventListener('mousedown', handleMouseDown);
+  svg.addEventListener('mousedown', handleMouseDown);
   window.addEventListener('mousemove', handleMouseMove);
   window.addEventListener('mouseup', handleMouseUp);
 }
