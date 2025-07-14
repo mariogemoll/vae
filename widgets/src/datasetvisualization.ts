@@ -56,15 +56,11 @@ function setUpUi(
   }
   // Initial render
   let selectedPointIndex: number | null = null;
+  let isDragging = false;
 
   drawScatter(scatterCtx, null, sizeRange, hueRange);
 
-  // Update the hover handler to use the same ranges
-  scatterCanvas.addEventListener('mousemove', (event) => {
-    const rect = scatterCanvas.getBoundingClientRect();
-    const mx = event.clientX - rect.left;
-    const my = event.clientY - rect.top;
-
+  function findClosestPoint(mx: number, my: number): number | null {
     const scale = 200;
     const xScale = scale / (sizeRange[1] - sizeRange[0]);
 
@@ -86,13 +82,45 @@ function setUpUi(
       }
     }
 
-    if (minDist <= thresholdPx) {
-      selectedPointIndex = minIndex; // Update the selected point only when close enough
-      updateImageDisplay(imageCtx, minIndex);
+    return minDist <= thresholdPx ? minIndex : null;
+  }
+
+  // Handle mouse down to start interaction
+  scatterCanvas.addEventListener('mousedown', (event) => {
+    const rect = scatterCanvas.getBoundingClientRect();
+    const mx = event.clientX - rect.left;
+    const my = event.clientY - rect.top;
+
+    const closestIndex = findClosestPoint(mx, my);
+    if (closestIndex !== null) {
+      selectedPointIndex = closestIndex;
+      updateImageDisplay(imageCtx, closestIndex);
+      drawScatter(scatterCtx, selectedPointIndex, sizeRange, hueRange);
+      isDragging = true;
     }
 
-    // Always redraw with the currently selected point
-    drawScatter(scatterCtx, selectedPointIndex, sizeRange, hueRange);
+    event.preventDefault();
+  });
+
+  // Handle mouse move during drag
+  scatterCanvas.addEventListener('mousemove', (event) => {
+    if (!isDragging) {return;}
+
+    const rect = scatterCanvas.getBoundingClientRect();
+    const mx = event.clientX - rect.left;
+    const my = event.clientY - rect.top;
+
+    const closestIndex = findClosestPoint(mx, my);
+    if (closestIndex !== null) {
+      selectedPointIndex = closestIndex;
+      updateImageDisplay(imageCtx, closestIndex);
+      drawScatter(scatterCtx, selectedPointIndex, sizeRange, hueRange);
+    }
+  });
+
+  // Handle mouse up to stop interaction
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
   });
 
   // Add a separate function to update the image display
