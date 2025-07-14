@@ -24,11 +24,11 @@ function addLabeledTextField(
     position: 'absolute',
     left: `${left.toString()}px`,
     top: `${top.toString()}px`
-  }).textContent = label;
+  }).textContent = label + ':';
 
   return addSpan(parent, {}, {
     position: 'absolute',
-    left: `${(left + 50).toString()}px`,
+    left: `${(left + 34).toString()}px`,
     top: `${top.toString()}px`,
     textAlign: 'right'
   });
@@ -39,7 +39,7 @@ export function addTwoLabeledTextFields(
 ): Pair<HTMLSpanElement> {
   return [
     addLabeledTextField(parent, 240, 38, labelA),
-    addLabeledTextField(parent, 240, 140, labelB)
+    addLabeledTextField(parent, 240, 120, labelB)
   ];
 }
 
