@@ -25,52 +25,16 @@ jobs:
         working-directory: notebook
         run: >-
           pip install "torch>=2,<3" --index-url https://download.pytorch.org/whl/cpu
-      - name: Run flake8
-        working-directory: notebook
-        run: flake8 .
-      - name: Run isort (check only)
-        working-directory: notebook
-        run: isort . --check-only --diff
-      - name: Run black (check only)
-        working-directory: notebook
-        run: black --check --diff .
-      - name: Run mypy
-        working-directory: notebook
-        run: mypy --strict *.py
-      - name: Check that the notebook has no output
-        working-directory: notebook
-        run: python check_no_output.py notebook.ipynb
-      - name: Run markdownlint-cli2
-        working-directory: text
-        run: |
-          npm install markdownlint-cli2
-          npx markdownlint-cli2 *.md
       - name: 'Widgets: Install dependencies'
         working-directory: widgets
         run: npm i
-      - name: 'Widgets: Run ESLint'
-        working-directory: widgets
-        run: >
-          npx eslint -c basic.eslint.config.js basic.eslint.config.js eslint.config.js
-
-          npx eslint src
-
-      - name: 'Widgets: Compile TypeScript'
-        working-directory: widgets
-        run: npx tsc
       - name: 'Widget wrappers: Install dependencies'
         working-directory: notebook/widget-wrappers
         run: npm i
-      - name: 'Widget wrappers: Run ESLint'
-        working-directory: notebook/widget-wrappers
-        run: >
-          npx eslint -c basic.eslint.config.js basic.eslint.config.js eslint.config.js
+      - name: Run checks
+        working-directory: scripts
+        run: ./checkall.sh
 
-          npx eslint src
-
-      - name: 'Widget wrappers: Compile TypeScript'
-        working-directory: notebook/widget-wrappers
-        run: npx tsc
   build:
     runs-on: ubuntu-latest
     steps:

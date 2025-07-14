@@ -21,4 +21,3 @@ npx eslint -c basic.eslint.config.js basic.eslint.config.js eslint.config.js
 npx eslint src
 
 npx tsc
-
