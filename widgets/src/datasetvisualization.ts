@@ -1,14 +1,15 @@
-import { addFrame,getContext } from './canvas.js';
+import { addFrame, getContext } from './canvas.js';
 import { addImgCanvas, addTwoLabeledTextFields } from './commonelements.js';
 import { hueRange, sizeRange } from './constants.js';
-import { addCanvas, addDiv, addErrorMessage, removePlaceholder } from './dom.js';
+import { addCanvas, addDiv, addErrorMessage, addSpan, removePlaceholder } from './dom.js';
 import type { Pair } from './types/pair.js';
 import { mapRange } from './util.js';
 
 function setUpUi(
   scatterCanvas: HTMLCanvasElement, imageCanvas: HTMLCanvasElement, sizeValueSpan: HTMLSpanElement,
-  hueValueSpan: HTMLSpanElement, allCoords: Pair<number>[], allImages: Uint8Array[],
-  allLabels: string[]): void {
+  hueValueSpan: HTMLSpanElement, valOrTrainSpan: HTMLSpanElement, allCoords: Pair<number>[],
+  allImages: Uint8Array[], allLabels: string[]
+): void {
   const scatterCtx = getContext(scatterCanvas);
   const imageCtx = getContext(imageCanvas);
 
@@ -50,6 +51,7 @@ function setUpUi(
     if (highlightIndex !== null) {
       sizeValueSpan.textContent = allCoords[highlightIndex][0].toFixed(2);
       hueValueSpan.textContent = allCoords[highlightIndex][1].toFixed(2);
+      valOrTrainSpan.textContent = `(${allLabels[highlightIndex]})`;
     }
   }
   // Initial render
@@ -143,6 +145,14 @@ export function setUpDatasetVisualization(
     );
 
     const [sizeSpan, hueSpan] = addTwoLabeledTextFields(widget, 'Size', 'Hue');
+
+    const valOrTrainSpan = addSpan(widget, {}, {
+      position: 'absolute',
+      left: '200px',
+      top: '240px',
+      textAlign: 'right'
+    });
+
     const imgCanvas = addImgCanvas(widget, 288);
 
 
@@ -183,7 +193,7 @@ export function setUpDatasetVisualization(
     }
 
     setUpUi(
-      alphaCanvas, imgCanvas, sizeSpan, hueSpan, allCoords, allImages,
+      alphaCanvas, imgCanvas, sizeSpan, hueSpan, valOrTrainSpan, allCoords, allImages,
       allLabels
     );
   } catch (error: unknown) {
