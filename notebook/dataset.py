@@ -8,9 +8,9 @@ from util import in_range
 
 
 def generate_dataset(
-    size_range: tuple[int, int],
+    size_range: tuple[float, float],
     hue_range: tuple[float, float],
-    valset_size_range: tuple[int, int],
+    valset_size_range: tuple[float, float],
     valset_hue_range: tuple[float, float],
     num_samples: int,
 ) -> tuple[list[tuple[float, float]], list[tuple[float, float]], torch.Tensor, torch.Tensor]:

@@ -127,7 +127,7 @@ def mapping(
         var encoderBase64 = '{encoder_base64}';
         var decoderBase64 = '{decoder_base64}';
         var faceImgUrl = '{face_img_base64_url}';
-        var valsetBounds = {valset_bounds};
+        var valsetBounds = {[list(from_to) for from_to in valset_bounds]};
         {js}
     """,
     )

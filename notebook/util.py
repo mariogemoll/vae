@@ -4,9 +4,9 @@ from typing import Iterator
 
 import matplotlib.pyplot as plt
 import torch
+from torch import nn
 
 from constants import latent_dim
-from protocols import VAEProtocol
 
 
 # function to map value from [0, 1] to the specified range
@@ -85,7 +85,9 @@ def random_string(length: int = 10) -> str:
     return "".join(random.choice(letters) for _ in range(length))
 
 
-def onnx_export_to_files(vae: VAEProtocol, encoder_path: str, decoder_path: str) -> None:
+def onnx_export_to_files(
+    encoder: nn.Module, decoder: nn.Module, encoder_path: str, decoder_path: str
+) -> None:
     """
     Exports the VAE encoder and decoder to ONNX format and stores them at the specified paths.
     """
@@ -94,7 +96,7 @@ def onnx_export_to_files(vae: VAEProtocol, encoder_path: str, decoder_path: str)
 
     # Export to ONNX
     torch.onnx.export(
-        vae.encoder,
+        encoder,
         (encoder_dummy_input,),
         encoder_path,
         input_names=["image"],
@@ -112,7 +114,7 @@ def onnx_export_to_files(vae: VAEProtocol, encoder_path: str, decoder_path: str)
 
     # Export to ONNX
     torch.onnx.export(
-        vae.decoder,
+        decoder,
         (decoder_dummy_input,),
         decoder_path,
         input_names=["z"],
@@ -122,7 +124,7 @@ def onnx_export_to_files(vae: VAEProtocol, encoder_path: str, decoder_path: str)
     )
 
 
-def onnx_export(vae: VAEProtocol) -> tuple[str, str]:
+def onnx_export(encoder: nn.Module, decoder: nn.Module) -> tuple[str, str]:
     """
     Exports the VAE encoder and decoder to ONNX format and returns it as base64 encoded strings.
     """
@@ -130,7 +132,7 @@ def onnx_export(vae: VAEProtocol) -> tuple[str, str]:
     encoder_path = "/tmp/encoder_" + random_string() + ".onnx"
     decoder_path = "/tmp/decoder_" + random_string() + ".onnx"
 
-    onnx_export_to_files(vae, encoder_path, decoder_path)
+    onnx_export_to_files(encoder, decoder, encoder_path, decoder_path)
 
     encoder_base64 = read_as_base64(encoder_path)
     decoder_base64 = read_as_base64(decoder_path)
