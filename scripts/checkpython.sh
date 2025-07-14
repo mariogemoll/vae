@@ -18,4 +18,12 @@ black --check --diff .
 
 python check_no_output.py notebook.ipynb
 
-mypy *.py
+mypy --strict --show-error-context *.py
+
+nbqa flake8 notebook.ipynb
+
+nbqa isort --check-only --diff notebook.ipynb
+
+nbqa black --check --diff notebook.ipynb
+
+nbqa mypy --strict --show-error-context notebook.ipynb
