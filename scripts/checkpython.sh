@@ -10,11 +10,11 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $SCRIPT_DIR/../notebook
 
-flake8 .
+flake8 *.py
 
-isort . --check-only --diff
+isort --check-only --diff *.py
 
-black --check --diff .
+black --check --diff *.py
 
 python check_no_output.py notebook.ipynb
 
