@@ -55,10 +55,13 @@ class VAE(nn.Module):
         self.encoder = Encoder(latent_dim)
         self.decoder = Decoder(latent_dim)
 
-    def forward(
-        self, x: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-        mu_x, logvar_x = self.encoder(x)
-        z = reparameterize(mu_x, logvar_x)
-        mu_z = self.decoder(z)
-        return mu_x, logvar_x, z, mu_z
+    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        enc_mu, enc_logvar = self.encoder(x)
+
+        # Reparameterization trick
+        std = torch.exp(0.5 * enc_logvar)
+        eps = torch.randn_like(std)
+        z = enc_mu + eps * std
+
+        dec_mu = self.decoder(z)
+        return enc_mu, enc_logvar, dec_mu
