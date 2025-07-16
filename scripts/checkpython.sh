@@ -16,7 +16,7 @@ isort --check-only --diff *.py
 
 black --check --diff *.py
 
-python check_no_output.py notebook.ipynb
+python check_notebook_json.py notebook.ipynb
 
 mypy --strict --show-error-context *.py
 
