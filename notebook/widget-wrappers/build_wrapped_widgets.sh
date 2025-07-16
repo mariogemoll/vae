@@ -14,3 +14,5 @@ npx esbuild src/datasetvisualization.ts --bundle --format=iife --loader:.png=dat
 npx esbuild src/mapping.ts --bundle --format=iife --loader:.png=dataurl --outfile=dist/mapping.js
 
 npx esbuild src/decoding.ts --bundle --format=iife --outfile=dist/decoding.js
+
+npx esbuild ../../widgets/src/gridviewer.ts --bundle --format=esm --outfile=dist/gridviewer.js

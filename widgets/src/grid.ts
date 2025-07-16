@@ -4,7 +4,7 @@ import { renderSample } from './dataset.js';
 import { addLine } from './svg.js';
 import type { OrtFunction } from './types/ortfunction';
 import type { Pair } from './types/pair';
-import { mapRange, writePixelValues } from './util.js';
+import { getAttribute, mapRange, writePixelValues } from './util.js';
 
 export function drawGrid(
   svg: SVGSVGElement,
@@ -12,8 +12,8 @@ export function drawGrid(
   fieldRange: Pair<Pair<number>>, stroke: string, tensor: Pair<number>[][]
 ): void {
   const outputRange: Pair<Pair<number>> = [
-    [margin.left, svg.clientWidth - margin.right],
-    [margin.top, svg.clientHeight - margin.bottom]
+    [margin.left, parseFloat(getAttribute(svg, 'width')) - margin.right],
+    [margin.top, parseFloat(getAttribute(svg, 'height')) - margin.bottom]
   ];
   const rows = tensor.length;
   const cols = tensor[0].length;

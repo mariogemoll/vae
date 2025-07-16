@@ -16,14 +16,16 @@ isort --check-only --diff *.py
 
 black --check --diff *.py
 
-python check_notebook_json.py notebook.ipynb
-
 mypy --strict --show-error-context *.py
 
-nbqa flake8 notebook.ipynb
+for notebook in *.ipynb; do
+    python check_notebook_json.py $notebook
+done
 
-nbqa isort --check-only --diff notebook.ipynb
+nbqa flake8 *.ipynb --nbqa-diff
 
-nbqa black --check --diff notebook.ipynb
+nbqa isort --check-only --diff *.ipynb
 
-nbqa mypy --strict --show-error-context notebook.ipynb
+nbqa black --check --diff *.ipynb
+
+nbqa mypy --strict --show-error-context *.ipynb

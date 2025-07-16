@@ -18,6 +18,15 @@ def in_range(value_range: tuple[float, float], value: float) -> bool:
     return value_range[0] <= value <= value_range[1]
 
 
+def get_device() -> torch.device:
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    elif torch.backends.mps.is_available():
+        return torch.device("mps")
+    else:
+        return torch.device("cpu")
+
+
 class BatchIterator:
     def __init__(self, data: torch.Tensor, batch_size: int):
         """
@@ -85,12 +94,7 @@ def random_string(length: int = 10) -> str:
     return "".join(random.choice(letters) for _ in range(length))
 
 
-def onnx_export_to_files(
-    encoder: nn.Module, decoder: nn.Module, encoder_path: str, decoder_path: str
-) -> None:
-    """
-    Exports the VAE encoder and decoder to ONNX format and stores them at the specified paths.
-    """
+def onnx_export_encoder(encoder: nn.Module, encoder_path: str) -> None:
     # Dummy image input
     encoder_dummy_input: torch.Tensor = torch.randn(1, 3, 32, 32)
 
@@ -109,6 +113,8 @@ def onnx_export_to_files(
         opset_version=14,
     )
 
+
+def onnx_export_decoder(decoder: nn.Module, decoder_path: str) -> None:
     # Dummy latent input
     decoder_dummy_input: torch.Tensor = torch.randn(1, latent_dim)
 
@@ -122,6 +128,16 @@ def onnx_export_to_files(
         dynamic_axes={"z": {0: "batch_size"}, "reconstruction": {0: "batch_size"}},
         opset_version=14,
     )
+
+
+def onnx_export_to_files(
+    encoder: nn.Module, decoder: nn.Module, encoder_path: str, decoder_path: str
+) -> None:
+    """
+    Exports the VAE encoder and decoder to ONNX format and stores them at the specified paths.
+    """
+    onnx_export_encoder(encoder, encoder_path)
+    onnx_export_decoder(decoder, decoder_path)
 
 
 def onnx_export(encoder: nn.Module, decoder: nn.Module) -> tuple[str, str]:

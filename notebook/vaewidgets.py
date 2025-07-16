@@ -24,10 +24,10 @@ def get_face_img_base64_url() -> str:
     return f"data:image/png;base64,{face_img_base64}"
 
 
-def widget(js: str) -> HTML:
+def widget(js: str, height: int = 300) -> HTML:
     return HTML(  # type: ignore[no-untyped-call]
         f"""
-    <div style="height: 300px"></div>
+    <div style="height: {height}px"></div>
     <script>{js}</script>
     """
     )
@@ -118,18 +118,23 @@ def dataset_visualization(
 def mapping(
     encoder_base64: str,
     decoder_base64: str,
-    valset_bounds: tuple[tuple[float, float], tuple[float, float]],
+    valset_bounds: tuple[tuple[float, float], tuple[float, float]] | None = None,
 ) -> HTML:
     js = get_js("mapping")
     face_img_base64_url = get_face_img_base64_url()
+    if valset_bounds is None:
+        valset_bounds_str = "null"
+    else:
+        valset_bounds_str = "{[list(from_to) for from_to in valset_bounds]}"
     return widget(
         f"""
         var encoderBase64 = '{encoder_base64}';
         var decoderBase64 = '{decoder_base64}';
         var faceImgUrl = '{face_img_base64_url}';
-        var valsetBounds = {[list(from_to) for from_to in valset_bounds]};
+        var valsetBounds = {valset_bounds_str};
         {js}
-    """,
+        """,
+        height=330,
     )
 
 
@@ -144,3 +149,21 @@ def decoding(encoder_base64: str, decoder_base64: str) -> HTML:
         {js}
     """,
     )
+
+
+class GridViewer(anywidget.AnyWidget):
+    _esm = "widget-wrappers/dist/gridviewer.js"
+    xRange: traitlets.Tuple = traitlets.Tuple().tag(sync=True)
+    yRange: traitlets.Tuple = traitlets.Tuple().tag(sync=True)
+    grid = traitlets.List(traitlets.List(traitlets.List(traitlets.Float()))).tag(sync=True)
+
+    def __init__(
+        self,
+        x_range: tuple[float, float],
+        y_range: tuple[float, float],
+        grid: list[list[tuple[float, float]]],
+    ) -> None:
+        super().__init__()
+        self.xRange = x_range
+        self.yRange = y_range
+        self.grid = grid
