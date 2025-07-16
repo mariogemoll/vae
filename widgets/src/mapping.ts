@@ -130,7 +130,7 @@ export async function setUpMapping(
   decode: OrtFunction,
   picaInstance: pica.Pica,
   faceImgUrl: string,
-  valsetBounds: Pair<Pair<number>>,
+  valsetBounds: Pair<Pair<number>> | null,
   alphaGrid: Pair<number>[][],
   zGrid: Pair<number>[][],
   box: HTMLDivElement
@@ -152,7 +152,9 @@ export async function setUpMapping(
 
     const margins = { top: 10, right: 40, bottom: 40, left: 40 };
 
-    addTrainingSetRect(alphaSvg, margins, valsetBounds);
+    if (valsetBounds !== null) {
+      addTrainingSetRect(alphaSvg, margins, valsetBounds);
+    }
 
     drawGrid(alphaSvg, margins, [extendedSizeRange, extendedHueRange], 'grey', alphaGrid);
 
