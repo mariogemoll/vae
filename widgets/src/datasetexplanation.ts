@@ -2,7 +2,7 @@ import { addImgCanvas, addSpaceSvg,addTwoLabeledTextFields } from './commoneleme
 import { hueRange, sizeRange } from './constants.js';
 import { renderSample } from './dataset.js';
 import { addDiv, addErrorMessage, makeCanvas, removePlaceholder } from './dom.js';
-import { drawGrid } from './grid.js';
+import { drawGridOnSvg } from './grid.js';
 import { addFrame } from './svg.js';
 import { setUp2dSelectorWithLabels } from './twodselector.js';
 import type { Pair } from './types/pair.js';
@@ -27,7 +27,7 @@ export async function setUpDatasetExplanation(
     const img = await loadImage(faceImgUrl);
 
     const margins = { top: 10, right: 40, bottom: 40, left: 40 };
-    drawGrid(alphaSvg, margins, [sizeRange, hueRange], 'grey', alphaGrid);
+    drawGridOnSvg(alphaSvg, margins, [sizeRange, hueRange], 'grey', alphaGrid);
 
     let working = false;
 

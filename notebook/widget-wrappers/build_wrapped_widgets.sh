@@ -16,3 +16,6 @@ npx esbuild src/mapping.ts --bundle --format=iife --loader:.png=dataurl --outfil
 npx esbuild src/decoding.ts --bundle --format=iife --outfile=dist/decoding.js
 
 npx esbuild ../../widgets/src/gridviewer.ts --bundle --format=esm --outfile=dist/gridviewer.js
+
+npx esbuild src/modelcomparison.ts --bundle --format=iife --outfile=dist/modelcomparison.js
+

@@ -1,12 +1,14 @@
 import type * as ort from 'onnxruntime-web';
 
+import { gridSize } from './constants.js';
 import { renderSample } from './dataset.js';
 import { addLine } from './svg.js';
 import type { OrtFunction } from './types/ortfunction';
 import type { Pair } from './types/pair';
+import type { Scale } from './types/scale';
 import { getAttribute, mapRange, writePixelValues } from './util.js';
 
-export function drawGrid(
+export function drawGridOnSvg(
   svg: SVGSVGElement,
   margin: { top: number, right: number, bottom: number, left: number },
   fieldRange: Pair<Pair<number>>, stroke: string, tensor: Pair<number>[][]
@@ -35,6 +37,44 @@ export function drawGrid(
         addLine(svg, stroke, p1, p2);
       }
     }
+  }
+}
+
+export function drawGridOnCanvas(
+  ctx: CanvasRenderingContext2D,
+  gridData: Float32Array,
+  xScale: Scale,
+  yScale: Scale
+): void {
+  ctx.strokeStyle = 'black';
+  ctx.lineWidth = 0.5;
+
+  // Horizontal lines (rows)
+  for (let i = 0; i < gridSize; i++) {
+    ctx.beginPath();
+    for (let j = 0; j < gridSize; j++) {
+      const idx = (i * gridSize + j) * 2;
+      const drawX = xScale(gridData[idx]);
+      const drawY = yScale(gridData[idx + 1]);
+      if (j === 0) { ctx.moveTo(drawX, drawY); }
+      else { ctx.lineTo(drawX, drawY); }
+    }
+    ctx.stroke();
+  }
+
+  // Vertical lines (columns)
+  for (let j = 0; j < gridSize; j++) {
+    ctx.beginPath();
+    for (let i = 0; i < gridSize; i++) {
+      const idx =  (i * gridSize + j) * 2;
+      const x = xScale(gridData[idx]);
+      const y = yScale(gridData[idx + 1]);
+      const drawX = x;
+      const drawY = y;
+      if (i === 0) { ctx.moveTo(drawX, drawY); }
+      else { ctx.lineTo(drawX, drawY); }
+    }
+    ctx.stroke();
   }
 }
 

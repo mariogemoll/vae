@@ -6,7 +6,7 @@ import { hueRange, sizeRange, zRange } from './constants.js';
 import { renderSample } from './dataset.js';
 import { addDiv, addEl, addErrorMessage, addTd, makeCanvas,removePlaceholder } from './dom.js';
 import { drawImage } from './drawimage.js';
-import { drawGrid } from './grid.js';
+import { drawGridOnSvg } from './grid.js';
 import { setUpRemoteControlledDot } from './rcdot.js';
 import { addFrame, rectPath } from './svg.js';
 import { setUp2dSelectorWithLabels } from './twodselector.js';
@@ -156,9 +156,9 @@ export async function setUpMapping(
       addTrainingSetRect(alphaSvg, margins, valsetBounds);
     }
 
-    drawGrid(alphaSvg, margins, [extendedSizeRange, extendedHueRange], 'grey', alphaGrid);
+    drawGridOnSvg(alphaSvg, margins, [extendedSizeRange, extendedHueRange], 'grey', alphaGrid);
 
-    drawGrid(zSvg, margins, [zRange, zRange], 'grey', zGrid);
+    drawGridOnSvg(zSvg, margins, [zRange, zRange], 'grey', zGrid);
 
     // TODO Calculate initial mu and stdDev values
     const updateZ = setUpRemoteControlledDot(

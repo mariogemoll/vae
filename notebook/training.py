@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from tqdm import trange
+from tqdm.notebook import trange
 
 from elbo import approximate_elbo
 from model import VAE
@@ -15,7 +15,9 @@ def train(
     num_epochs: int = 100,
     trainset_batch_size: int = 256,
     valset_batch_size: int = 64,
-) -> tuple[list[float], list[float]]:
+    grid: torch.Tensor | None = None,
+    is_inner_loop: bool = False,
+) -> tuple[list[float], list[float], torch.Tensor | None]:
     train_losses = []
     val_losses = []
 
@@ -25,7 +27,13 @@ def train(
     vae = VAE(2).to(device)
     optimizer = torch.optim.Adam(vae.parameters(), lr=1e-3)
 
-    pbar = trange(num_epochs)
+    if grid is not None:
+        processed_grids = torch.zeros((num_epochs, 100, 2))
+
+    if is_inner_loop:
+        pbar = trange(num_epochs, position=1, leave=False)
+    else:
+        pbar = trange(num_epochs)
     for epoch in pbar:
         vae.train()
         per_batch_train_losses = []
@@ -59,6 +67,10 @@ def train(
                     logvar_x,
                 ).mean()
                 per_batch_val_losses.append(loss.item())
+
+                if grid is not None:
+                    mu, logvar = vae.encoder(grid)
+                    processed_grids[epoch] = mu
         pbar.set_description(
             f"Train Loss: {train_losses[-1]:.4f}, Val Loss: {np.mean(per_batch_val_losses):.4f}"
         )
@@ -69,4 +81,4 @@ def train(
             best_val_loss = epoch_val_loss
             torch.save(vae.state_dict(), dst_path)
 
-    return train_losses, val_losses
+    return train_losses, val_losses, None if grid is None else processed_grids

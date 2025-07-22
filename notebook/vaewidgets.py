@@ -167,3 +167,17 @@ class GridViewer(anywidget.AnyWidget):
         self.xRange = x_range
         self.yRange = y_range
         self.grid = grid
+
+
+def model_comparison(losses: bytes, grids: bytes) -> HTML:
+    js = get_js("modelcomparison")
+    losses_base64 = b64encode(losses).decode("ascii")
+    grids_base64 = b64encode(grids).decode("ascii")
+    return widget(
+        f"""
+        var lossesBase64 = '{losses_base64}';
+        var gridsBase64 = '{grids_base64}';
+        {js}
+        """,
+        450,
+    )

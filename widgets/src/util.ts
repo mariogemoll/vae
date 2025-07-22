@@ -1,5 +1,6 @@
 import { getContext } from './canvas.js';
 import type { Pair } from './types/pair';
+import type { Scale } from './types/scale';
 
 export function el(parent: Document | Element, query: string): Element {
   const element = parent.querySelector(query);
@@ -30,6 +31,13 @@ export function mapRangeTo01(range: Pair<number>, value: number): number {
 export function midRangeValue(range: Pair<number>): number {
   const [min, max] = range;
   return (min + max) / 2;
+}
+
+export function makeScale(domain: Pair<number>, range: Pair<number>): Scale {
+  const fnc = mapRange.bind(null, domain, range) as Scale;
+  fnc.domain = domain;
+  fnc.range = range;
+  return fnc;
 }
 
 // Function to add a percentual margin to range [a, b]
@@ -113,4 +121,22 @@ export function generateTicks(range: [number, number], count: number): number[] 
   }
 
   return tickValues;
+}
+
+// Reads two 32-bit little-endian floats from the start of the buffer as min and max values. Then
+// reads the rest as an array of bytes and scales the byte values to the range [min, max].
+export function expandFloats(buf: ArrayBuffer): [number, number, Float32Array] {
+  const headerView = new DataView(buf, 0, 8);
+  const minVal = headerView.getFloat32(0, true); // little-endian
+  const maxVal = headerView.getFloat32(4, true);
+  const gridUint8 = new Uint8Array(buf, 8);  // Skip first 8 bytes
+  const extent = maxVal - minVal;
+  function convert(val: number): number {
+    return minVal + (val / 255.0) * extent;
+  }
+  const gridData = new Float32Array(gridUint8.length);
+  for (let i = 0; i < gridUint8.length; i++) {
+    gridData[i] = convert(gridUint8[i]);
+  }
+  return [minVal, maxVal, gridData];
 }

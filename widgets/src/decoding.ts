@@ -3,7 +3,7 @@ import { addImgCanvas, addSpaceSvg, addTwoLabeledTextFields } from './commonelem
 import { zRange } from './constants.js';
 import { addDiv, addErrorMessage, removePlaceholder } from './dom.js';
 import { drawImage } from './drawimage.js';
-import { drawGrid } from './grid.js';
+import { drawGridOnSvg } from './grid.js';
 import { getStandardGaussianHeatmap } from './standardgaussianheatmap.js';
 import { addFrame } from './svg.js';
 import { setUp2dSelectorWithLabels } from './twodselector.js';
@@ -46,7 +46,7 @@ export function setUpDecoding(
     addStandardGaussianHeatmap(zSvg, margins.left, margins.top);
     const reconCtx = getContext(reconCanvas);
 
-    drawGrid(zSvg, margins, [zRange, zRange], 'grey', zGrid);
+    drawGridOnSvg(zSvg, margins, [zRange, zRange], 'grey', zGrid);
 
     addFrame(zSvg, margins, zRange, zRange, 5);
 

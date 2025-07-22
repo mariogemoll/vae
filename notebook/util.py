@@ -3,6 +3,7 @@ import os
 from typing import Iterator
 
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
 from torch import nn
 
@@ -158,3 +159,13 @@ def onnx_export(encoder: nn.Module, decoder: nn.Module) -> tuple[str, str]:
     os.remove(decoder_path)
 
     return encoder_base64, decoder_base64
+
+
+def compress_floats(data: np.ndarray) -> bytes:
+    minval, maxval = data.min(), data.max()
+    extent = maxval - minval
+    data_converted = ((data - minval) / extent * 255.0).astype(np.uint8)
+    data_bytes: bytes = data_converted.tobytes()
+    # return a byte buffer with the first 8 bytes being minval and maxval as little-endian floats
+    header: bytes = np.array([minval, maxval], dtype="<f4").tobytes()
+    return header + data_bytes

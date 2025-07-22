@@ -1,5 +1,6 @@
 import type { Margins } from './types/margins.js';
 import type { Pair } from './types/pair.js';
+import type { Scale } from './types/scale';
 import { mapRange } from './util.js';
 
 export function getContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
@@ -98,6 +99,32 @@ function generateTicks(range: [number, number], count = 6): number[] {
   return tickValues;
 }
 
+export function addAxes(
+  ctx: CanvasRenderingContext2D,
+  xScale: Scale,
+  yScale: Scale,
+  numTicks: number
+): void {
+  // x axis
+  addHorizontalLine(ctx, 'black', xScale.range, yScale.range[0]);
+  const xTicks = generateTicks(xScale.domain, numTicks);
+  xTicks.forEach((tickValue: number) => {
+    const x = xScale(tickValue);
+    addVerticalLine(ctx, 'black', x, [yScale.range[0], yScale.range[0] + 6]);
+    addText(ctx, 'middle', x, yScale.range[0] + 18, tickValue.toFixed(1));
+  });
+
+  // y axis
+  addVerticalLine(ctx, 'black', xScale.range[0], [yScale.range[0], yScale.range[1]]);
+  const yTicks = generateTicks(yScale.domain, numTicks);
+  yTicks.forEach((tickValue: number) => {
+    const y = yScale(tickValue);
+    addHorizontalLine(ctx, 'black', [xScale.range[0] - 6, xScale.range[0]], y);
+    addText(ctx, 'end', xScale.range[0] - 9, y + 3, tickValue.toFixed(1));
+  });
+}
+
+
 export function addFrame(
   canvas: HTMLCanvasElement,
   margins: Margins,
@@ -124,7 +151,7 @@ export function addFrame(
 
   // y axis
   addVerticalLine(ctx, 'black', margins.left, [margins.top, height - margins.bottom]);
-  const yTicks = generateTicks(yRange);
+  const yTicks = generateTicks(yRange, numTicks);
   yTicks.forEach((tickValue: number) => {
     const y = yScale(tickValue);
     addHorizontalLine(ctx, 'black', [margins.left - 6, margins.left], y);
