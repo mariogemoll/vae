@@ -1,16 +1,12 @@
 from base64 import b64encode
-from typing import Tuple
 
 import anywidget
+import numpy as np
 import torch
 import traitlets
 from IPython.display import HTML
 
-
-def stringify_coords(coords: list[tuple[float, float]]) -> Tuple[str, str]:
-    x_str = ",".join([f"{x:.3f}" for x, y in coords])
-    y_str = ",".join([f"{y:.3f}" for x, y in coords])
-    return x_str, y_str
+from util import compress_floats, stringify_coords
 
 
 def get_js(label: str) -> str:
@@ -177,6 +173,21 @@ def model_comparison(losses: bytes, grids: bytes) -> HTML:
         f"""
         var lossesBase64 = '{losses_base64}';
         var gridsBase64 = '{grids_base64}';
+        {js}
+        """,
+        450,
+    )
+
+
+def evolution(train_losses: list[float], val_losses: list[float], grid_data: np.ndarray) -> HTML:
+    converted_grid_data = compress_floats(grid_data)
+    js = get_js("evolution")
+    grid_data_base64 = b64encode(converted_grid_data).decode("ascii")
+    return widget(
+        f"""
+        var trainLosses = [{",".join(f"{loss:.3f}" for loss in train_losses)}];
+        var valLosses = [{",".join(f"{loss:.3f}" for loss in val_losses)}];
+        var gridDataBase64 = '{grid_data_base64}';
         {js}
         """,
         450,

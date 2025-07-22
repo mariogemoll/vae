@@ -3,11 +3,11 @@ import { gridSize, numEpochs, zRange } from './constants.js';
 import { addCanvas, addDiv, removePlaceholder } from './dom.js';
 import { drawGridOnCanvas } from './grid.js';
 import { setUpLossChart } from './losschart.js';
-import { loadLosses } from './lossdata.js';
-import { expandFloats, makeScale } from './util.js';
+import { makeScale } from './util.js';
 
-function setUpGrids(canvas: HTMLCanvasElement, gridBuf: ArrayBuffer): (frameIndex: number) => void {
-  const [, , gridData] = expandFloats(gridBuf);
+function setUpGrids(
+  canvas: HTMLCanvasElement, gridData: Float32Array
+): (frameIndex: number) => void {
   const ctx = getContext(canvas);
   const displaySidelength = 100;
   const rows = 3;
@@ -30,7 +30,8 @@ function setUpGrids(canvas: HTMLCanvasElement, gridBuf: ArrayBuffer): (frameInde
 }
 
 export function setUpModelComparison(
-  lossesBuf: ArrayBuffer, gridsBuf: ArrayBuffer, box: HTMLDivElement
+  minLoss: number, maxLoss: number, trainLosses: number[][], valLosses: number[][],
+  gridData: Float32Array, box: HTMLDivElement
 ): void {
   removePlaceholder(box);
   const widget = addDiv(box, {}, { height: '340px', position: 'relative' });
@@ -41,8 +42,7 @@ export function setUpModelComparison(
     { width: '340', height: '340' },
     { position: 'absolute', top: '0', left: '420px' }
   );
-  const showFrame = setUpGrids(gridsCanvas, gridsBuf);
-  const [minLoss, maxLoss, trainLosses, valLosses] = loadLosses(lossesBuf);
+  const showFrame = setUpGrids(gridsCanvas, gridData);
   const losses = [...trainLosses, ...valLosses];
   setUpLossChart(lossChartContainer, minLoss, maxLoss, losses, showFrame);
 }

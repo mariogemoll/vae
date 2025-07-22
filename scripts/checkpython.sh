@@ -10,7 +10,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd $SCRIPT_DIR/../notebook
 
-flake8 *.py
+flake8 --show-source *.py
 
 isort --check-only --diff *.py
 
@@ -22,7 +22,7 @@ for notebook in *.ipynb; do
     python check_notebook_json.py $notebook
 done
 
-nbqa flake8 *.ipynb
+nbqa flake8 --show-source *.ipynb
 
 nbqa isort --check-only --diff *.ipynb
 

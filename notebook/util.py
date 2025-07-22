@@ -169,3 +169,18 @@ def compress_floats(data: np.ndarray) -> bytes:
     # return a byte buffer with the first 8 bytes being minval and maxval as little-endian floats
     header: bytes = np.array([minval, maxval], dtype="<f4").tobytes()
     return header + data_bytes
+
+
+def expand_floats(data: bytes) -> np.ndarray:
+    minmax = np.frombuffer(data[:8], dtype="<f4").astype(np.float32)
+    minval: np.float32 = minmax[0]
+    maxval: np.float32 = minmax[1]
+    extent = maxval - minval
+    float_data: np.ndarray = np.frombuffer(data[8:], dtype=np.uint8).astype(np.float32)
+    return minval + float_data / 255.0 * extent
+
+
+def stringify_coords(coords: list[tuple[float, float]]) -> tuple[str, str]:
+    x_str = ",".join([f"{x:.3f}" for x, y in coords])
+    y_str = ",".join([f"{y:.3f}" for x, y in coords])
+    return x_str, y_str
