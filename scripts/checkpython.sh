@@ -22,7 +22,7 @@ for notebook in *.ipynb; do
     python check_notebook_json.py $notebook
 done
 
-nbqa flake8 *.ipynb --nbqa-diff
+nbqa flake8 *.ipynb
 
 nbqa isort --check-only --diff *.ipynb
 
