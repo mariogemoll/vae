@@ -10,6 +10,13 @@ def check_output(nb) -> None:  # type: ignore[no-untyped-def]
             raise ValueError("Notebook has output!")
 
 
+def check_empty_cells(nb) -> None:  # type: ignore[no-untyped-def]
+    for cell in nb.get("cells", []):
+        source = cell.get("source")
+        if len(source) == 0 or source == [""]:
+            raise ValueError("Notebook has empty cells!")
+
+
 def check_metadata_keys(nb) -> None:  # type: ignore[no-untyped-def]
     if "metadata" not in nb:
         raise ValueError("Notebook metadata is missing")
@@ -31,4 +38,5 @@ if __name__ == "__main__":
         nb = json.load(f)
 
     check_output(nb)
+    check_empty_cells(nb)
     check_metadata_keys(nb)
