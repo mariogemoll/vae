@@ -23,9 +23,9 @@ def get_face_img_base64_url() -> str:
 def widget(js: str, height: int = 300) -> HTML:
     return HTML(  # type: ignore[no-untyped-call]
         f"""
-    <div style="height: {height}px"></div>
-    <script>{js}</script>
-    """
+        <div style="height: {height}px"></div>
+        <script>{js}</script>
+        """
     )
 
 
@@ -36,7 +36,7 @@ def dataset_explanation() -> HTML:
         f"""
         var faceImgUrl = '{face_img_base64_url}';
         {js}
-    """,
+        """,
     )
 
 
@@ -107,7 +107,7 @@ def dataset_visualization(
         var datasetVisualizationTrainsetImagesBase64 = '{trainset_images_base64}';
         var datasetVisualizationValsetImagesBase64 = '{valset_images_base64}';
         {js}
-    """,
+        """,
     )
 
 
@@ -143,7 +143,7 @@ def decoding(encoder_base64: str, decoder_base64: str) -> HTML:
         var decoderBase64 = '{decoder_base64}';
         var faceImgUrl = '{face_img_base64_url}';
         {js}
-    """,
+        """,
     )
 
 
