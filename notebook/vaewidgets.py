@@ -130,7 +130,6 @@ def mapping(
         var valsetBounds = {valset_bounds_str};
         {js}
         """,
-        height=330,
     )
 
 
@@ -175,7 +174,7 @@ def model_comparison(losses: bytes, grids: bytes) -> HTML:
         var gridsBase64 = '{grids_base64}';
         {js}
         """,
-        450,
+        340,
     )
 
 
@@ -190,5 +189,5 @@ def evolution(train_losses: list[float], val_losses: list[float], grid_data: np.
         var gridDataBase64 = '{grid_data_base64}';
         {js}
         """,
-        450,
+        340,
     )
