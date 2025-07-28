@@ -116,7 +116,7 @@ export function setUpModelComparison(
   onModelClick?: (modelIndex: number) => void
 ): void {
   removePlaceholder(box);
-  const widget = addDiv(box, {}, { height: '340px', position: 'relative' });
+  const widget = addDiv(box, {}, { position: 'relative' });
   const lossChartContainer = addDiv(widget, {}, { width: '400px', height: '300px' });
   widget.appendChild(lossChartContainer);
   const gridsCanvas = addCanvas(

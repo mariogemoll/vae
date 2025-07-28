@@ -35,7 +35,7 @@ export function setUpDecoding(
 ): void {
   try {
     removePlaceholder(box);
-    const widget = addDiv(box, {}, { height: '300px', position: 'relative' });
+    const widget = addDiv(box, {}, { position: 'relative' });
 
     const zSvg = addSpaceSvg(widget, 0);
     const reconCanvas = addImgCanvas(widget, 288);

@@ -16,7 +16,7 @@ export async function setUpDatasetExplanation(
 
     removePlaceholder(box);
 
-    const widget = addDiv(box, {}, { height: '300px', position: 'relative' });
+    const widget = addDiv(box, {}, { position: 'relative' });
 
     const alphaSvg = addSpaceSvg(widget, 0);
     const [sizeSpan, hueSpan] = addTwoLabeledTextFields(widget, 'Size', 'Hue');

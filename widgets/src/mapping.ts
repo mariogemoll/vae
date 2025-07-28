@@ -138,7 +138,7 @@ export async function setUpMapping(
   try {
     removePlaceholder(box);
 
-    const widget = addDiv(box, {}, { height: '300px', position: 'relative' });
+    const widget = addDiv(box, {}, { position: 'relative' });
 
     const alphaSvg = addSpaceSvg(widget, 0);
     const [sizeSpan, hueSpan] = addTwoLabeledTextFields(widget, 'Size', 'Hue');
