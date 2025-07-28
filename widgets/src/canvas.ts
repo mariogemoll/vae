@@ -164,3 +164,65 @@ export function addFrame(
   // Add right border line
   addVerticalLine(ctx, 'black', width - margins.right, [margins.top, height - margins.bottom]);
 }
+
+export function addFrameUsingScales(
+  ctx: CanvasRenderingContext2D,
+  xScale: Scale,
+  yScale: Scale,
+  numTicks: number
+): void {
+
+  // x axis
+  addHorizontalLine(ctx, 'black', [xScale.range[0], xScale.range[1]], yScale.range[0]);
+  const xTicks = generateTicks(xScale.domain, numTicks);
+  xTicks.forEach((tickValue: number) => {
+    const x = xScale(tickValue);
+    addVerticalLine(ctx, 'black', x, [yScale.range[0], yScale.range[0] + 6]);
+    addText(ctx, 'middle', x, yScale.range[0] + 18, tickValue.toFixed(1));
+  });
+
+  // y axis
+  addVerticalLine(ctx, 'black', xScale.range[0], [yScale.range[0], yScale.range[1]]);
+  const yTicks = generateTicks(yScale.domain, numTicks);
+  yTicks.forEach((tickValue: number) => {
+    const y = yScale(tickValue);
+    addHorizontalLine(ctx, 'black', [xScale.range[0] - 6, xScale.range[0]], y);
+    addHorizontalLine(ctx, 'black', [xScale.range[0] - 6, xScale.range[0]], y);
+    addText(ctx, 'end', xScale.range[0] - 9, y + 3, tickValue.toFixed(1));
+  });
+
+  // Add top border line
+  addHorizontalLine(ctx, 'black', [xScale.range[0], xScale.range[1]], yScale.range[1]);
+
+  // Add right border line
+  addVerticalLine(ctx, 'black', xScale.range[1], [yScale.range[0], yScale.range[1]]);
+}
+// Draw scatter points
+export function drawScatter(
+  scatterCtx: CanvasRenderingContext2D,
+  xScale: Scale,
+  yScale: Scale,
+  coords: Pair<number>[],
+  colors: string[],
+  highlightIndex?: number
+): void {
+
+  for (let i = 0; i < coords.length; i++) {
+    const [x, y] = coords[i];
+
+    scatterCtx.beginPath();
+    scatterCtx.arc(xScale(x), yScale(y), 3, 0, 2 * Math.PI);
+    scatterCtx.fillStyle = colors[i];
+    scatterCtx.fill();
+  }
+
+  if (highlightIndex !== undefined) {
+    const [x, y] = coords[highlightIndex];
+    scatterCtx.beginPath();
+    scatterCtx.arc(xScale(x), yScale(y), 6, 0, 3 * Math.PI);
+    scatterCtx.strokeStyle = 'red';
+    scatterCtx.lineWidth = 2;
+    scatterCtx.stroke();
+  }
+
+}

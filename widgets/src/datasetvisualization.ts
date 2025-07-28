@@ -1,9 +1,32 @@
-import { addFrame, getContext } from './canvas.js';
+import { addFrameUsingScales, drawScatter, getContext } from './canvas.js';
 import { addImgCanvas, addTwoLabeledTextFields } from './commonelements.js';
 import { hueRange, sizeRange } from './constants.js';
 import { addCanvas, addDiv, addErrorMessage, addSpan, removePlaceholder } from './dom.js';
 import type { Pair } from './types/pair.js';
-import { mapRange } from './util.js';
+import type { Scale } from './types/scale.js';
+import { makeScale } from './util.js';
+
+function updateScatterUncurried(
+  ctx: CanvasRenderingContext2D,
+  sizeValueSpan: HTMLSpanElement,
+  hueValueSpan: HTMLSpanElement,
+  valOrTrainSpan: HTMLSpanElement,
+  xScale: Scale,
+  yScale: Scale,
+  coords: Pair<number>[],
+  labels: string[],
+  highlightIndex?: number
+): void {
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  addFrameUsingScales(ctx, xScale, yScale, 6);
+  const colors = labels.map(label => label === 'train' ? '#ccc' : '#999');
+  drawScatter(ctx, xScale, yScale, coords, colors, highlightIndex);
+  if (highlightIndex !== undefined) {
+    sizeValueSpan.textContent = coords[highlightIndex][0].toFixed(2);
+    hueValueSpan.textContent = coords[highlightIndex][1].toFixed(2);
+    valOrTrainSpan.textContent = `(${labels[highlightIndex]})`;
+  }
+}
 
 function setUpUi(
   scatterCanvas: HTMLCanvasElement, imageCanvas: HTMLCanvasElement, sizeValueSpan: HTMLSpanElement,
@@ -17,48 +40,18 @@ function setUpUi(
 
   const thresholdPx = 10;
 
-  // Draw scatter points
-  function drawScatter(scatterCtx: CanvasRenderingContext2D, highlightIndex: number | null,
-    xDomain: Pair<number>, yDomain: Pair<number>): void {
-    scatterCtx.clearRect(0, 0, 280, 250);
-    addFrame(scatterCanvas, margins, sizeRange, hueRange, 6);
-    const xRange: Pair<number> = [margins.left, 280 - margins.right];
-    const yRange: Pair<number> = [250 - margins.bottom, margins.top];
-
-    for (let i = 0; i < allCoords.length; i++) {
-      const [x, y] = allCoords[i];
-
-      const px = mapRange(xDomain, xRange, x);
-      const py = mapRange(yDomain, yRange, y);
-
-      scatterCtx.beginPath();
-      scatterCtx.arc(px, py, 3, 0, 2 * Math.PI);
-      scatterCtx.fillStyle = allLabels[i] === 'train' ? '#ccc' : '#999';
-      scatterCtx.fill();
-    }
-
-    if (highlightIndex !== null) {
-      const [x, y] = allCoords[highlightIndex];
-      const px = mapRange(xDomain, xRange, x);
-      const py = mapRange(yDomain, yRange, y);
-      scatterCtx.beginPath();
-      scatterCtx.arc(px, py, 6, 0, 3 * Math.PI);
-      scatterCtx.strokeStyle = 'red';
-      scatterCtx.lineWidth = 2;
-      scatterCtx.stroke();
-    }
-
-    if (highlightIndex !== null) {
-      sizeValueSpan.textContent = allCoords[highlightIndex][0].toFixed(2);
-      hueValueSpan.textContent = allCoords[highlightIndex][1].toFixed(2);
-      valOrTrainSpan.textContent = `(${allLabels[highlightIndex]})`;
-    }
-  }
   // Initial render
   let selectedPointIndex: number | null = null;
   let isDragging = false;
 
-  drawScatter(scatterCtx, null, sizeRange, hueRange);
+  const scatterXScale = makeScale(sizeRange, [margins.left, scatterCanvas.width - margins.right]);
+  const scatterYScale = makeScale(hueRange, [scatterCanvas.height - margins.bottom, margins.top]);
+
+  const updateScatter = updateScatterUncurried.bind(
+    null, scatterCtx, sizeValueSpan, hueValueSpan, valOrTrainSpan,
+    scatterXScale, scatterYScale, allCoords, allLabels
+  );
+  updateScatter();
 
   function findClosestPoint(mx: number, my: number): number | null {
     const scale = 200;
@@ -95,7 +88,7 @@ function setUpUi(
     if (closestIndex !== null) {
       selectedPointIndex = closestIndex;
       updateImageDisplay(imageCtx, closestIndex);
-      drawScatter(scatterCtx, selectedPointIndex, sizeRange, hueRange);
+      updateScatter(selectedPointIndex);
       isDragging = true;
     }
 
@@ -114,7 +107,7 @@ function setUpUi(
     if (closestIndex !== null) {
       selectedPointIndex = closestIndex;
       updateImageDisplay(imageCtx, closestIndex);
-      drawScatter(scatterCtx, selectedPointIndex, sizeRange, hueRange);
+      updateScatter(selectedPointIndex);
     }
   });
 
@@ -158,7 +151,7 @@ function setUpUi(
   const initialIndex = Math.floor(Math.random() * allCoords.length);
   selectedPointIndex = initialIndex;
   updateImageDisplay(imageCtx, initialIndex);
-  drawScatter(scatterCtx, initialIndex, sizeRange, hueRange);
+  updateScatter(initialIndex);
 }
 
 export function setUpDatasetVisualization(
