@@ -121,7 +121,7 @@ def mapping(
     if valset_bounds is None:
         valset_bounds_str = "null"
     else:
-        valset_bounds_str = "{[list(from_to) for from_to in valset_bounds]}"
+        valset_bounds_str = f"{[list(from_to) for from_to in valset_bounds]}"
     return widget(
         f"""
         var encoderBase64 = '{encoder_base64}';
