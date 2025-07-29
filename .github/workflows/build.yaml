@@ -17,19 +17,19 @@ jobs:
           sudo apt-get update
           sudo apt-get install libcairo2-dev pkg-config python3-dev
       - name: Install Python dependencies
-        working-directory: notebook
+        working-directory: notebooks
         run: |
           pip install -r requirements-build.txt
           pip install -r requirements-check.txt
       - name: Install PyTorch (CPU only version)
-        working-directory: notebook
+        working-directory: notebooks
         run: >-
           pip install "torch>=2,<3" --index-url https://download.pytorch.org/whl/cpu
       - name: 'Widgets: Install dependencies'
         working-directory: widgets
         run: npm i
       - name: 'Widget wrappers: Install dependencies'
-        working-directory: notebook/widget-wrappers
+        working-directory: notebooks/widget-wrappers
         run: npm i
       - name: Run checks
         working-directory: scripts
@@ -49,15 +49,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install libcairo2-dev pkg-config python3-dev
       - name: Install Python dependencies
-        working-directory: notebook
+        working-directory: notebooks
         run: pip install -r requirements-build.txt
       - name: Install PyTorch (CPU only version)
-        working-directory: notebook
+        working-directory: notebooks
         run: >-
           pip install "torch>=2,<3" --index-url https://download.pytorch.org/whl/cpu
-      - name: Trust the notebook
-        working-directory: notebook
+      - name: Trust the notebooks
+        working-directory: notebooks
         run: jupyter trust notebook.ipynb
       - name: Run the notebook
-        working-directory: notebook
+        working-directory: notebooks
         run: jupyter execute notebook.ipynb --output=notebook.out.ipynb

@@ -15,7 +15,7 @@ npx eslint src
 
 npx tsc
 
-cd $SCRIPT_DIR/../notebook/widget-wrappers
+cd $SCRIPT_DIR/../notebooks/widget-wrappers
 
 npx eslint -c basic.eslint.config.js basic.eslint.config.js eslint.config.js
 npx eslint src

@@ -4,9 +4,9 @@
 __pycache__
 node_modules
 package-lock.json
-/notebook/*.bin
-/notebook/*.json
-/notebook/*.onnx
-/notebook/widget-wrappers/dist
+/notebooks/*.bin
+/notebooks/*.json
+/notebooks/*.onnx
+/notebooks/widget-wrappers/dist
 /widgets/dist
 
