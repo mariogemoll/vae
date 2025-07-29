@@ -16,7 +16,7 @@ isort --check-only --diff *.py
 
 black --check --diff *.py
 
-mypy --strict --show-error-context *.py
+mypy --strict --pretty *.py
 
 for notebook in *.ipynb; do
     python check_notebook_json.py $notebook
@@ -28,4 +28,4 @@ nbqa isort --check-only --diff *.ipynb
 
 nbqa black --check --diff *.ipynb
 
-nbqa mypy --strict --show-error-context *.ipynb
+nbqa mypy --strict --pretty *.ipynb
