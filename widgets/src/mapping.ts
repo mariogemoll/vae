@@ -10,9 +10,9 @@ import { drawGridOnSvg } from './grid.js';
 import { setUpRemoteControlledDot } from './rcdot.js';
 import { addFrame, rectPath } from './svg.js';
 import { setUp2dSelectorWithLabels } from './twodselector.js';
-import type { Margins } from './types/margins.js';
-import type { OrtFunction } from './types/ortfunction';
-import type { Pair } from './types/pair';
+import type Margins from './types/margins.js';
+import type OrtFunction from './types/ortfunction';
+import type Pair from './types/pair';
 import {
   addMarginToRange, getAttribute, loadImage, mapPair, mapRange, midRangeValue,
   writePixelValues

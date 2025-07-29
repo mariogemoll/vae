@@ -1,6 +1,6 @@
 import fromBase64 from 'es-arraybuffer-base64/Uint8Array.fromBase64';
 import { Semaphore } from 'widgets/semaphore';
-import type { OrtFunction } from 'widgets/types/ortfunction';
+import type OrtFunction from 'widgets/types/ortfunction';
 
 import { ort } from './ort';
 

@@ -2,8 +2,8 @@ import { addFrameUsingScales, drawScatter, getContext } from './canvas.js';
 import { addImgCanvas, addTwoLabeledTextFields } from './commonelements.js';
 import { hueRange, sizeRange } from './constants.js';
 import { addCanvas, addDiv, addErrorMessage, addSpan, removePlaceholder } from './dom.js';
-import type { Pair } from './types/pair.js';
-import type { Scale } from './types/scale.js';
+import type Pair from './types/pair.js';
+import type Scale from './types/scale.js';
 import { makeScale } from './util.js';
 
 function updateScatterUncurried(

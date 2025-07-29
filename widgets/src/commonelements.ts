@@ -1,6 +1,6 @@
 import { addCanvas, addSpan } from './dom.js';
 import { addSvg } from './svg.js';
-import type { Pair } from './types/pair.js';
+import type Pair from './types/pair.js';
 
 export function addImgCanvas(parent: HTMLElement, left: number): HTMLCanvasElement {
   return addCanvas(parent, {

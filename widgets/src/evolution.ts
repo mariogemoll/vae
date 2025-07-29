@@ -3,7 +3,7 @@ import { gridSize, zRange } from './constants.js';
 import { addCanvas, addDiv, removePlaceholder } from './dom.js';
 import { drawGridOnCanvas } from './grid.js';
 import { setUpLossChart } from './losschart.js';
-import type { Margins } from './types/margins.js';
+import type Margins from './types/margins.js';
 import { makeScale } from './util.js';
 
 function setUpGrids(

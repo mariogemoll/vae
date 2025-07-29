@@ -1,6 +1,6 @@
 import { getContext } from './canvas.js';
-import type { Pair } from './types/pair';
-import type { Scale } from './types/scale';
+import type Pair from './types/pair';
+import type Scale from './types/scale';
 
 export function el(parent: Document | Element, query: string): Element {
   const element = parent.querySelector(query);

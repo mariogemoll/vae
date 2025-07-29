@@ -1,5 +1,5 @@
-import type { Margins } from './types/margins.js';
-import type { Pair } from './types/pair';
+import type Margins from './types/margins.js';
+import type Pair from './types/pair';
 import { mapRange } from './util.js';
 
 export function setUp2dSelector(

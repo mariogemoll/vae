@@ -5,7 +5,7 @@ import { addDiv, addErrorMessage, makeCanvas, removePlaceholder } from './dom.js
 import { drawGridOnSvg } from './grid.js';
 import { addFrame } from './svg.js';
 import { setUp2dSelectorWithLabels } from './twodselector.js';
-import type { Pair } from './types/pair.js';
+import type Pair from './types/pair.js';
 import { loadImage, midRangeValue } from './util.js';
 
 

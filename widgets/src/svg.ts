@@ -1,5 +1,5 @@
-import type { Margins } from './types/margins.js';
-import type { Pair } from './types/pair.js';
+import type Margins from './types/margins.js';
+import type Pair from './types/pair.js';
 import { generateTicks, getAttribute, mapRange } from './util.js';
 
 export function addSvg(

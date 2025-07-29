@@ -7,8 +7,8 @@ import { drawGridOnSvg } from './grid.js';
 import { getStandardGaussianHeatmap } from './standardgaussianheatmap.js';
 import { addFrame } from './svg.js';
 import { setUp2dSelectorWithLabels } from './twodselector.js';
-import type { OrtFunction } from './types/ortfunction.js';
-import type { Pair } from './types/pair.js';
+import type OrtFunction from './types/ortfunction.js';
+import type Pair from './types/pair.js';
 import { midRangeValue } from './util.js';
 
 function addStandardGaussianHeatmap(svg: SVGSVGElement, x: number, y: number): void {

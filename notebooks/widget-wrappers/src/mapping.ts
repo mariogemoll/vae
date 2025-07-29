@@ -4,7 +4,7 @@ import { hueRange,sizeRange } from 'widgets/constants';
 import { addErrorMessage } from 'widgets/dom';
 import { encodeGrid, makeStandardGrid } from 'widgets/grid';
 import { setUpMapping as setUpMappingInternal } from 'widgets/mapping';
-import type { Pair } from 'widgets/types/pair';
+import type Pair from 'widgets/types/pair';
 import { loadImage } from 'widgets/util';
 
 import { makeGuardedDecode } from './decode';

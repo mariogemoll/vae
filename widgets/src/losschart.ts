@@ -1,7 +1,7 @@
 import { addAxes, addVerticalLine, getContext } from './canvas.js';
 import { addCanvas } from './dom.js';
-import type { Margins } from './types/margins.js';
-import type { Scale } from './types/scale.js';
+import type Margins from './types/margins.js';
+import type Scale from './types/scale.js';
 import { makeScale } from './util.js';
 
 function drawLine(

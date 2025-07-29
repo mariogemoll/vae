@@ -1,6 +1,6 @@
-import type { Margins } from './types/margins.js';
-import type { Pair } from './types/pair.js';
-import type { Scale } from './types/scale';
+import type Margins from './types/margins.js';
+import type Pair from './types/pair.js';
+import type Scale from './types/scale';
 import { mapRange } from './util.js';
 
 export function getContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {

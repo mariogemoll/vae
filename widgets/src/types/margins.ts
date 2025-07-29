@@ -1,6 +1,8 @@
-export interface Margins {
+interface Margins {
   top: number;
   right: number;
   bottom: number;
   left: number;
-}
+};
+
+export default Margins;

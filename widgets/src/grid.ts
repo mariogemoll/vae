@@ -3,9 +3,9 @@ import type * as ort from 'onnxruntime-web';
 import { gridSize } from './constants.js';
 import { renderSample } from './dataset.js';
 import { addLine } from './svg.js';
-import type { OrtFunction } from './types/ortfunction';
-import type { Pair } from './types/pair';
-import type { Scale } from './types/scale';
+import type OrtFunction from './types/ortfunction';
+import type Pair from './types/pair';
+import type Scale from './types/scale';
 import { getAttribute, mapRange, writePixelValues } from './util.js';
 
 export function drawGridOnSvg(

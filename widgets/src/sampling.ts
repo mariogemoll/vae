@@ -4,8 +4,8 @@ import { addCanvas, addDiv, removePlaceholder } from './dom.js';
 import { drawImage } from './drawimage.js';
 import { sampleFromStandardGaussian } from './gaussian.js';
 import { drawGaussian } from './standardgaussianheatmap.js';
-import type { OrtFunction } from './types/ortfunction.js';
-import type { Pair } from './types/pair.js';
+import type OrtFunction from './types/ortfunction.js';
+import type Pair from './types/pair.js';
 import { makeScale } from './util.js';
 
 export function sampleTensor(): Float32Array {

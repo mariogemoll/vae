@@ -4,8 +4,8 @@ import { addSpaceSvg } from './commonelements';
 import { addDiv } from './dom.js';
 import { drawGridOnSvg } from './grid';
 import { addFrame } from './svg';
-import type { Margins } from './types/margins';
-import type { Pair } from './types/pair';
+import type Margins from './types/margins';
+import type Pair from './types/pair';
 
 interface GridViewerModel {
   grid: Pair<number>[][];

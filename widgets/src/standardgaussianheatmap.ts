@@ -1,6 +1,6 @@
 import { getContext } from './canvas.js';
 import { standardGaussianPdf } from './gaussian.js';
-import type { Margins } from './types/margins.js';
+import type Margins from './types/margins.js';
 
 export function drawGaussian(
   canvas: HTMLCanvasElement,
