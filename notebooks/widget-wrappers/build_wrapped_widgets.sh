@@ -20,3 +20,5 @@ npx esbuild ../../widgets/src/gridviewer.ts --bundle --format=esm --outfile=dist
 npx esbuild src/modelcomparison.ts --bundle --format=iife --outfile=dist/modelcomparison.js
 
 npx esbuild src/evolution.ts --bundle --format=iife --outfile=dist/evolution.js
+
+npx esbuild src/sampling.ts --bundle --format=iife --outfile=dist/sampling.js

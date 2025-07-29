@@ -191,3 +191,13 @@ def evolution(train_losses: list[float], val_losses: list[float], grid_data: np.
         """,
         340,
     )
+
+
+def sampling(decoder_base64: str) -> HTML:
+    js = get_js("sampling")
+    return widget(
+        f"""
+        var decoderBase64 = '{decoder_base64}';
+        {js}
+        """,
+    )
