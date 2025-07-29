@@ -25,15 +25,15 @@ jobs:
         run: echo '${{ secrets.GOOGLE_CREDENTIALS }}' > /tmp/key.json
       - name: Trust the notebook
         working-directory: notebooks
-        run: jupyter trust notebook.ipynb
+        run: jupyter trust vae.ipynb
       - name: Run the notebook
         working-directory: notebooks
-        run: jupyter execute notebook.ipynb --output=notebook.out.ipynb
+        run: jupyter execute vae.ipynb --output=vae.out.ipynb
       - name: Trust the completed notebook
         working-directory: notebooks
-        run: jupyter trust notebook.out.ipynb
+        run: jupyter trust vae.out.ipynb
       - name: Run notebook upload script
         env:
           SERVICE_ACCOUNT_FILE: /tmp/key.json
         working-directory: notebooks
-        run: python colab_update.py "${{ vars.GOOGLE_DRIVE_FILE_ID }}" notebook.out.ipynb
+        run: python colab_update.py "${{ vars.GOOGLE_DRIVE_FILE_ID }}" vae.out.ipynb
