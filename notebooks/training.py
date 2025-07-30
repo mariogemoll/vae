@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from tqdm.notebook import trange
 
+from constants import sidelength
 from elbo import approximate_elbo
 from model import VAE
 from util import BatchIterator
@@ -20,8 +21,6 @@ def train(
 ) -> tuple[list[float], list[float], torch.Tensor | None]:
     train_losses = []
     val_losses = []
-
-    sidelength = 32  # Assuming images are 32x32 pixels
 
     best_val_loss = np.inf
     vae = VAE(2).to(device)
