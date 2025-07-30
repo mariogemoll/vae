@@ -70,8 +70,9 @@ def train(
                 if grid is not None:
                     mu, logvar = vae.encoder(grid)
                     processed_grids[epoch] = mu
-        pbar.set_description(
-            f"Train Loss: {train_losses[-1]:.4f}, Val Loss: {np.mean(per_batch_val_losses):.4f}"
+        pbar.set_postfix(
+            train_loss=int(np.round(train_losses[-1])),
+            val_loss=int(np.round(np.mean(per_batch_val_losses))),
         )
         epoch_val_loss = float(np.mean(per_batch_val_losses))
         val_losses.append(float(epoch_val_loss))
