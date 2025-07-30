@@ -8,10 +8,10 @@ import type OrtFunction from './types/ortfunction.js';
 import type Pair from './types/pair.js';
 import { makeScale } from './util.js';
 
-export function sampleTensor(): Float32Array {
-  const values = new Float32Array(128); // 64 pairs × 2 = 128 values
+export function sampleTensor(numSamples: number): Float32Array {
+  const values = new Float32Array(numSamples * 2);
 
-  for (let i = 0; i < 64; i++) {
+  for (let i = 0; i < numSamples; i++) {
     const [x, y] = sampleFromStandardGaussian();
     values[i * 2] = x;     // x value at even indices
     values[i * 2 + 1] = y; // y value at odd indices
@@ -74,9 +74,11 @@ export async function setUpSampling(
   btn.style.top = '250px';
   let working = true;
 
+  const numSamples = 24;
+
   async function sampleAsync(): Promise<void> {
-    const tensor = sampleTensor();
-    const ortTensor = new ort.Tensor('float32', tensor, [64, 2]);
+    const tensor = sampleTensor(numSamples);
+    const ortTensor = new ort.Tensor('float32', tensor, [numSamples, 2]);
     const results = await decode(ortTensor);
     zCtx.clearRect(0, 0, zCanvas.width, zCanvas.height);
     drawGaussian(zCanvas, zMargins, 3);
