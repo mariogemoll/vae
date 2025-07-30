@@ -19,10 +19,9 @@ export function sampleTensor(numSamples: number): Float32Array {
 
   return values;
 }
-
 function displayImages(ctx: CanvasRenderingContext2D, data: Float32Array): void {
   // Clear canvas
-  ctx.clearRect(0, 0, 256, 256);
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
   const numRows = 4;
   const numCols = 6;
@@ -35,6 +34,21 @@ function displayImages(ctx: CanvasRenderingContext2D, data: Float32Array): void 
 
       drawImage(ctx, data, canvasX, canvasY, dataOffset);
     }
+  }
+}
+
+function drawImageHighlight(ctx: CanvasRenderingContext2D, highlightedIndex: number): void {
+  if (highlightedIndex >= 0 && highlightedIndex < 24) {
+    const numCols = 6;
+    const col = highlightedIndex % numCols;
+    const row = Math.floor(highlightedIndex / numCols);
+    const canvasX = col * 32;
+    const canvasY = row * 32;
+
+    // Draw red border around highlighted image
+    ctx.strokeStyle = '#ff0000';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(canvasX - 1, canvasY - 1, 34, 34); // 32 + 2 for border
   }
 }
 
@@ -52,7 +66,6 @@ export async function setUpSampling(
   const z0Scale = makeScale(zRange, [zMargins.left, zCanvas.width - zMargins.right]);
   const z1Scale = makeScale(zRange, [zCanvas.height - zMargins.bottom, zMargins.top]);
   const zCtx = getContext(zCanvas);
-
 
   // Create canvas for displaying images
   const imgCanvas = document.createElement('canvas');
@@ -75,21 +88,127 @@ export async function setUpSampling(
   btn.style.top = '250px';
   let working = true;
 
+  // Store current coordinates and highlighted index
+  let currentCoords: Pair<number>[] = [];
+  let highlightedIndex = -1;
+
+  function drawCoordinates(): void {
+    zCtx.clearRect(0, 0, zCanvas.width, zCanvas.height);
+    drawGaussian(zCanvas, zMargins, 3);
+    addFrameUsingScales(zCtx, z0Scale, z1Scale, 5);
+
+    // Draw all coordinates
+    const colors = currentCoords.map(() => '#ccc');
+    drawScatter(zCtx, z0Scale, z1Scale, currentCoords, colors);
+
+    // Draw highlight circle around selected coordinate
+    if (highlightedIndex >= 0 && highlightedIndex < currentCoords.length) {
+      const [x, y] = currentCoords[highlightedIndex];
+      const screenX = z0Scale(x);
+      const screenY = z1Scale(y);
+      zCtx.strokeStyle = '#ff0000';
+      zCtx.lineWidth = 2;
+      zCtx.beginPath();
+      zCtx.arc(screenX, screenY, 8, 0, 2 * Math.PI);
+      zCtx.stroke();
+    }
+  }
+
+  function drawImageWithHighlight(): void {
+    // Redraw all images first
+    displayImages(imageCtx, currentImageData);
+    // Then draw highlight if needed
+    drawImageHighlight(imageCtx, highlightedIndex);
+  }
+
+  // Store current image data for redrawing
+  let currentImageData: Float32Array = new Float32Array(0);
+
+  // Add mouse interaction for image canvas
+  imgCanvas.addEventListener('mousemove', (event) => {
+    const rect = imgCanvas.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / 2; // Account for 2x scaling
+    const y = (event.clientY - rect.top) / 2;
+
+    // Calculate which image cell we're hovering over
+    const col = Math.floor(x / 32);
+    const row = Math.floor(y / 32);
+
+    if (col >= 0 && col < 6 && row >= 0 && row < 4) {
+      const imageIndex = row * 6 + col;
+      if (imageIndex < currentCoords.length) {
+        highlightedIndex = imageIndex;
+        drawCoordinates();
+        drawImageWithHighlight();
+      }
+    }
+  });
+
+  imgCanvas.addEventListener('mouseleave', () => {
+    highlightedIndex = -1;
+    drawCoordinates();
+    drawImageWithHighlight();
+  });
+
+  // Add mouse interaction for coordinate canvas
+  zCanvas.addEventListener('mousemove', (event) => {
+    const rect = zCanvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    // Find closest coordinate point
+    let closestIndex = -1;
+    let minDistance = Infinity;
+
+    currentCoords.forEach((coord, index) => {
+      const screenX = z0Scale(coord[0]);
+      const screenY = z1Scale(coord[1]);
+      const distance = Math.sqrt((mouseX - screenX) ** 2 + (mouseY - screenY) ** 2);
+
+      if (distance < 15 && distance < minDistance) { // 15px threshold
+        minDistance = distance;
+        closestIndex = index;
+      }
+    });
+
+    if (closestIndex !== highlightedIndex) {
+      highlightedIndex = closestIndex;
+      drawCoordinates();
+      drawImageWithHighlight();
+
+      // Set cursor style
+      if (highlightedIndex >= 0) {
+        imgCanvas.style.cursor = 'pointer';
+      } else {
+        imgCanvas.style.cursor = 'default';
+      }
+    }
+  });
+
+  zCanvas.addEventListener('mouseleave', () => {
+    highlightedIndex = -1;
+    drawCoordinates();
+    drawImageWithHighlight();
+    imgCanvas.style.cursor = 'default';
+  });
+
+
   const numSamples = 24;
 
   async function sampleAsync(): Promise<void> {
     const tensor = sampleTensor(numSamples);
     const ortTensor = new ort.Tensor('float32', tensor, [numSamples, 2]);
     const results = await decode(ortTensor);
-    zCtx.clearRect(0, 0, zCanvas.width, zCanvas.height);
-    drawGaussian(zCanvas, zMargins, 3);
-    addFrameUsingScales(zCtx, z0Scale, z1Scale, 5);
-    const coords: Pair<number>[] = [];
+
+    // Store image data and update coordinates
+    currentImageData = results.reconstruction.data as Float32Array;
+    currentCoords = [];
     for (let i = 0; i < tensor.length; i += 2) {
-      coords.push([tensor[i], tensor[i + 1]]);
+      currentCoords.push([tensor[i], tensor[i + 1]]);
     }
-    drawScatter(zCtx, z0Scale, z1Scale, coords, coords.map(() => '#ccc'));
-    displayImages(imageCtx, results.reconstruction.data as Float32Array);
+
+    drawCoordinates();
+    drawImageWithHighlight();
   }
   function sample(): void {
     if (working) {
