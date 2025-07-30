@@ -1,6 +1,6 @@
 import type Margins from './types/margins.js';
 import type Pair from './types/pair.js';
-import { generateTicks, getAttribute, hsvToRgb, mapRange } from './util.js';
+import { floorString, generateTicks, getAttribute, hsvToRgb, mapRange } from './util.js';
 
 export function addSvg(
   parent: HTMLElement, attrs: Record<string, string>, style: Partial<CSSStyleDeclaration>
@@ -154,10 +154,6 @@ export function rectPath([x0, y0]: Pair<number>, [x1, y1]: Pair<number>): string
   const x1Str = x1.toFixed(2);
   const y1Str = y1.toFixed(2);
   return `M${x0Str},${y0Str} H${x1Str} V${y1Str} H${x0Str} Z`;
-}
-
-function floorString(value: number): string {
-  return Math.floor(value).toString();
 }
 
 export function addGradientBackground(

@@ -1,241 +1,74 @@
-import { addFrameUsingScales, drawScatter, getContext } from './canvas.js';
-import { addImgCanvas, addTwoLabeledTextFields } from './commonelements.js';
-import { hueRange, sizeRange } from './constants.js';
-import { addCanvas, addDiv, addErrorMessage, addSpan, removePlaceholder } from './dom.js';
-import type Pair from './types/pair.js';
-import type Scale from './types/scale.js';
-import { getEventCoordinates, makeScale } from './util.js';
+import {
+  convertRawImageToImageData,
+  createDatasetVisualizationWidget,
+  handleDatasetVisualizationError,
+  type ImageDisplayHandler,
+  processDatasetCoordinates,
+  setUpDatasetVisualizationUi
+} from './basedatasetvisualization.js';
 
-function updateScatterUncurried(
-  ctx: CanvasRenderingContext2D,
-  sizeValueSpan: HTMLSpanElement,
-  hueValueSpan: HTMLSpanElement,
-  valOrTrainSpan: HTMLSpanElement,
-  xScale: Scale,
-  yScale: Scale,
-  coords: Pair<number>[],
-  labels: string[],
-  highlightIndex?: number
-): void {
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  addFrameUsingScales(ctx, xScale, yScale, 6);
-  const colors = labels.map(label => label === 'train' ? '#ccc' : '#999');
-  drawScatter(ctx, xScale, yScale, coords, colors, highlightIndex);
-  if (highlightIndex !== undefined) {
-    sizeValueSpan.textContent = coords[highlightIndex][0].toFixed(2);
-    hueValueSpan.textContent = coords[highlightIndex][1].toFixed(2);
-    valOrTrainSpan.textContent = `(${labels[highlightIndex]})`;
-  }
-}
-
-function setUpUi(
-  scatterCanvas: HTMLCanvasElement, imageCanvas: HTMLCanvasElement, sizeValueSpan: HTMLSpanElement,
-  hueValueSpan: HTMLSpanElement, valOrTrainSpan: HTMLSpanElement, allCoords: Pair<number>[],
-  allImages: Uint8Array[], allLabels: string[]
-): void {
-  const scatterCtx = getContext(scatterCanvas);
-  const imageCtx = getContext(imageCanvas);
-
-  const margins = { top: 10, right: 40, bottom: 50, left: 40 };
-
-  const thresholdPx = 10;
-
-  // Initial render
-  let selectedPointIndex: number | null = null;
-  let isDragging = false;
-
-  const scatterXScale = makeScale(sizeRange, [margins.left, scatterCanvas.width - margins.right]);
-  const scatterYScale = makeScale(hueRange, [scatterCanvas.height - margins.bottom, margins.top]);
-
-  const updateScatter = updateScatterUncurried.bind(
-    null, scatterCtx, sizeValueSpan, hueValueSpan, valOrTrainSpan,
-    scatterXScale, scatterYScale, allCoords, allLabels
-  );
-  updateScatter();
-
-  function findClosestPoint(mx: number, my: number): number | null {
-    const scale = 200;
-    const xScale = scale / (sizeRange[1] - sizeRange[0]);
-
-    let minDist = Infinity;
-    let minIndex = -1;
-
-    for (let i = 0; i < allCoords.length; i++) {
-      const [x, y] = allCoords[i];
-
-      // Skip points outside the range
-      if (x < sizeRange[0] || x > sizeRange[1] || y < hueRange[0] || y > hueRange[1]) { continue; }
-
-      const px = margins.left + (x - sizeRange[0]) * xScale;
-      const py = margins.top + (1 - (y - hueRange[0]) / (hueRange[1] - hueRange[0])) * scale;
-      const dist = Math.hypot(px - mx, py - my);
-      if (dist < minDist) {
-        minDist = dist;
-        minIndex = i;
-      }
-    }
-
-    return minDist <= thresholdPx ? minIndex : null;
-  }
-
-  // Handle mouse/touch down to start interaction
-  const handleStart = (event: MouseEvent | TouchEvent): void => {
-    const coords = getEventCoordinates(event);
-    const rect = scatterCanvas.getBoundingClientRect();
-    const mx = coords.clientX - rect.left;
-    const my = coords.clientY - rect.top;
-
-    const closestIndex = findClosestPoint(mx, my);
-    if (closestIndex !== null) {
-      selectedPointIndex = closestIndex;
-      updateImageDisplay(imageCtx, closestIndex);
-      updateScatter(selectedPointIndex);
-      isDragging = true;
-    }
-
-    event.preventDefault();
-  };
-
-  // Handle mouse/touch move during drag
-  const handleMove = (event: MouseEvent | TouchEvent): void => {
-    if (!isDragging) {return;}
-
-    const coords = getEventCoordinates(event);
-    const rect = scatterCanvas.getBoundingClientRect();
-    const mx = coords.clientX - rect.left;
-    const my = coords.clientY - rect.top;
-
-    const closestIndex = findClosestPoint(mx, my);
-    if (closestIndex !== null) {
-      selectedPointIndex = closestIndex;
-      updateImageDisplay(imageCtx, closestIndex);
-      updateScatter(selectedPointIndex);
-    }
-  };
-
-  // Handle mouse/touch up to stop interaction
-  const handleEnd = (): void => {
-    isDragging = false;
-  };
-
-  // Add event listeners for both mouse and touch
-  scatterCanvas.addEventListener('mousedown', handleStart);
-  scatterCanvas.addEventListener('touchstart', handleStart, { passive: false });
-
-  scatterCanvas.addEventListener('mousemove', handleMove);
-  scatterCanvas.addEventListener('touchmove', handleMove, { passive: false });
-
-  window.addEventListener('mouseup', handleEnd);
-  window.addEventListener('touchend', handleEnd);
-  window.addEventListener('touchcancel', handleEnd);
-
-  // Add a separate function to update the image display
-  function updateImageDisplay(imageCtx: CanvasRenderingContext2D, index: number): void {
+function createImageDisplayHandler(allImages: Uint8Array[]): ImageDisplayHandler {
+  return (imageCtx: CanvasRenderingContext2D, index: number): void => {
     if (index < 0 || index >= allImages.length) {
       console.warn('Index out of bounds for images:', index);
       return;
     }
     imageCtx.clearRect(0, 0, 32, 32);
     const flatImage = allImages[index];
-    const rawBytes = flatImage;
-    const width = 32;
-    const height = 32;
-
-    const rgba = new Uint8ClampedArray(width * height * 4);
-    const channelSize = width * height;
-
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const i = y * width + x;
-        const chwIndex = y * width + x;
-
-        rgba[i * 4 + 0] = rawBytes[0 * channelSize + chwIndex]; // R
-        rgba[i * 4 + 1] = rawBytes[1 * channelSize + chwIndex]; // G
-        rgba[i * 4 + 2] = rawBytes[2 * channelSize + chwIndex]; // B
-        rgba[i * 4 + 3] = 255;
-      }
-    }
-
-    const imageData = new ImageData(rgba, width, height);
+    const imageData = convertRawImageToImageData(flatImage, 32, 32);
     imageCtx.putImageData(imageData, 0, 0);
+  };
+}
+
+function processDatasetImages(
+  trainsetImages: Uint8Array,
+  valsetImages: Uint8Array
+): Uint8Array[] {
+  const allImages: Uint8Array[] = [];
+
+  // Process training images
+  for (let i = 0; i < trainsetImages.length; i += 3072) {
+    const rgbBytes = trainsetImages.slice(i, i + 3072);
+    const flatImage = new Uint8Array(rgbBytes);
+    allImages.push(flatImage);
   }
 
-  // Select a random point to display initially
-  const initialIndex = Math.floor(Math.random() * allCoords.length);
-  selectedPointIndex = initialIndex;
-  updateImageDisplay(imageCtx, initialIndex);
-  updateScatter(initialIndex);
+  // Process validation images
+  for (let i = 0; i < valsetImages.length; i += 3072) {
+    const rgbBytes = valsetImages.slice(i, i + 3072);
+    const flatImage = new Uint8Array(rgbBytes);
+    allImages.push(flatImage);
+  }
+
+  return allImages;
 }
 
 export function setUpDatasetVisualization(
-  box: HTMLDivElement, trainsetX: number[], trainsetY: number[], valsetX: number[],
-  valsetY: number[], trainsetImages: Uint8Array, valsetImages: Uint8Array): void {
+  box: HTMLDivElement,
+  trainsetX: number[],
+  trainsetY: number[],
+  valsetX: number[],
+  valsetY: number[],
+  trainsetImages: Uint8Array,
+  valsetImages: Uint8Array
+): void {
   try {
-    removePlaceholder(box);
-    const widget = addDiv(box, {}, { height: '300px', position: 'relative' });
-
-    const alphaCanvas = addCanvas(
-      widget, { width: '280', height: '250' }, { position: 'absolute', cursor: 'crosshair' }
+    const { allCoords, allLabels } = processDatasetCoordinates(
+      trainsetX, trainsetY, valsetX, valsetY
     );
 
-    const [sizeSpan, hueSpan] = addTwoLabeledTextFields(widget, 'Size', 'Hue');
+    const allImages = processDatasetImages(trainsetImages, valsetImages);
 
-    const valOrTrainSpan = addSpan(widget, {}, {
-      position: 'absolute',
-      left: '200px',
-      top: '240px',
-      textAlign: 'right'
-    });
+    const { alphaCanvas, imgCanvas, sizeSpan, hueSpan, valOrTrainSpan } =
+      createDatasetVisualizationWidget(box);
 
-    const imgCanvas = addImgCanvas(widget, 288);
+    const imageDisplayHandler = createImageDisplayHandler(allImages);
 
-
-    const data: Record<string, { X: number[], Y: number[], images: Uint8Array }> = {
-      'train': {
-        'X': trainsetX,
-        'Y': trainsetY,
-        'images': trainsetImages
-      },
-      'val': {
-        'X': valsetX,
-        'Y': valsetY,
-        'images': valsetImages
-      }
-    };
-
-    const labels = ['train', 'val'];
-
-    const allCoords: Pair<number>[] = [];
-    const allImages: Uint8Array[] = [];
-    const allLabels: string[] = [];
-    for (const label of labels) {
-      const labelSizes = data[label].X;
-      const labelHues = data[label].Y;
-      for (let i = 0; i < labelSizes.length; i++) {
-        const size = labelSizes[i];
-        const hue = labelHues[i];
-        allCoords.push([size, hue]);
-        allLabels.push(label);
-      }
-
-      const imageBytes = data[label].images;
-      for (let i = 0; i < imageBytes.length; i += 3072) {
-        const rgbBytes = imageBytes.slice(i, i + 3072);
-        const flatImage = new Uint8Array(rgbBytes);
-        allImages.push(flatImage);
-      }
-    }
-
-    setUpUi(
-      alphaCanvas, imgCanvas, sizeSpan, hueSpan, valOrTrainSpan, allCoords, allImages,
-      allLabels
+    setUpDatasetVisualizationUi(
+      alphaCanvas, imgCanvas, sizeSpan, hueSpan, valOrTrainSpan,
+      allCoords, allLabels, { imageDisplayHandler }
     );
   } catch (error: unknown) {
-    console.error('Error setting up dataset visualization:', error);
-    let msg = 'Unknown error';
-    if (error instanceof Error) {
-      msg = error.message;
-    }
-    addErrorMessage(box, `Error setting up dataset visualization: ${msg}`);
+    handleDatasetVisualizationError(box, error);
   }
 }

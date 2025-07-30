@@ -11,3 +11,5 @@ export const gridSize = 10;
 
 export const bgHsvSaturation = 0.8;
 export const bgHsvValue = 0.8;
+
+export const sidelength = 32;

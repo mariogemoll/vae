@@ -149,3 +149,7 @@ export function getEventCoordinates(
   }
   return { clientX: (e as MouseEvent).clientX, clientY: (e as MouseEvent).clientY };
 };
+
+export function floorString(value: number): string {
+  return Math.floor(value).toString();
+}
