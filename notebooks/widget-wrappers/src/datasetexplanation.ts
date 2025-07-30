@@ -14,8 +14,8 @@ var datasetExplanationContainer = getPreviousElementSibling() as HTMLDivElement;
 setUpDatasetExplanation(
   pica(),
   faceImgUrl,
-  makeStandardGrid(sizeRange, hueRange),
-  datasetExplanationContainer
+  datasetExplanationContainer,
+  makeStandardGrid(sizeRange, hueRange)
 ).catch((error: unknown) => {
   console.error('Error setting up dataset explanation widget:', error);
   let msg = 'Unknown error';

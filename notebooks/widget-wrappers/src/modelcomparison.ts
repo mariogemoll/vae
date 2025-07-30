@@ -18,7 +18,7 @@ try {
   const [minLoss, maxLoss, trainLosses, valLosses] = loadLosses(lossesUint8.buffer);
   const [, , gridData] = expandFloats(gridsUint8.buffer);
   setUpModelComparison(
-    minLoss, maxLoss, trainLosses, valLosses, gridData, modelComparisonContainer
+    modelComparisonContainer, minLoss, maxLoss, trainLosses, valLosses, gridData
   );
 } catch (error) {
   console.error('Error setting up model comparison widget:', error);

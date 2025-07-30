@@ -126,14 +126,14 @@ function addZInfoTable(
 export async function setUpMapping(
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
   ort: typeof import('onnxruntime-web'),
+  picaInstance: pica.Pica,
   encode: OrtFunction,
   decode: OrtFunction,
-  picaInstance: pica.Pica,
   faceImgUrl: string,
-  valsetBounds: Pair<Pair<number>> | null,
+  box: HTMLDivElement,
   alphaGrid: Pair<number>[][],
   zGrid: Pair<number>[][],
-  box: HTMLDivElement
+  valsetBounds?: Pair<Pair<number>>
 ): Promise<void> {
   try {
     removePlaceholder(box);
@@ -152,7 +152,7 @@ export async function setUpMapping(
 
     const margins = { top: 10, right: 40, bottom: 40, left: 40 };
 
-    if (valsetBounds !== null) {
+    if (valsetBounds !== undefined) {
       addTrainingSetRect(alphaSvg, margins, valsetBounds);
     }
 
@@ -170,6 +170,7 @@ export async function setUpMapping(
     );
 
     const faceImg = await loadImage(faceImgUrl);
+
     async function update(size: number, hue: number): Promise<void> {
       await renderSample(picaInstance, hiresCanvas, xCanvas, faceImg, size, hue);
       const [mu, logvar] = await encodeImg(ort, encode, xCanvas, singleImgArr);

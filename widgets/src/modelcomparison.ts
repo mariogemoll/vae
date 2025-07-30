@@ -111,8 +111,8 @@ function setUpGrids(
 }
 
 export function setUpModelComparison(
-  minLoss: number, maxLoss: number, trainLosses: number[][], valLosses: number[][],
-  gridData: Float32Array, box: HTMLDivElement, selectedModelIndex?: number,
+  box: HTMLDivElement, minLoss: number, maxLoss: number, trainLosses: number[][],
+  valLosses: number[][], gridData: Float32Array, selectedModelIndex?: number,
   onModelClick?: (modelIndex: number) => void
 ): void {
   removePlaceholder(box);

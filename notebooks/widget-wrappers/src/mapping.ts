@@ -35,7 +35,7 @@ async function setUpMapping(): Promise<void> {
   const zGrid = await encodeGrid(ort, picaInstance, img, encode, alphaGrid);
 
   await setUpMappingInternal(
-    ort, encode, decode, picaInstance, faceImgUrl, valsetBounds, alphaGrid, zGrid, mappingContainer
+    ort, picaInstance, encode, decode, faceImgUrl, mappingContainer, alphaGrid, zGrid, valsetBounds
   );
   settingUpMapping = false;
 }

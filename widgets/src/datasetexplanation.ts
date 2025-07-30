@@ -10,7 +10,7 @@ import { loadImage, midRangeValue } from './util.js';
 
 
 export async function setUpDatasetExplanation(
-  picaInstance: pica.Pica, faceImgUrl: string, alphaGrid: Pair<number>[][], box: HTMLDivElement
+  picaInstance: pica.Pica, faceImgUrl: string, box: HTMLDivElement, alphaGrid: Pair<number>[][]
 ): Promise<void> {
   try {
 
