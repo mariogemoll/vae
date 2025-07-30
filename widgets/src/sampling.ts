@@ -24,10 +24,11 @@ function displayImages(ctx: CanvasRenderingContext2D, data: Float32Array): void 
   // Clear canvas
   ctx.clearRect(0, 0, 256, 256);
 
-  // Draw 8x8 grid of images
-  for (let row = 0; row < 4; row++) {
-    for (let col = 0; col < 6; col++) {
-      const imageIndex = row * 8 + col;
+  const numRows = 4;
+  const numCols = 6;
+  for (let row = 0; row < numRows; row++) {
+    for (let col = 0; col < numCols; col++) {
+      const imageIndex = row * numCols + col;
       const canvasX = col * 32;
       const canvasY = row * 32;
       const dataOffset = imageIndex * 32 * 32 * 3; // Each image is 32x32x3 (RGB)
