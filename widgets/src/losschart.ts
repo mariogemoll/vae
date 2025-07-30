@@ -138,7 +138,7 @@ export function setUpLossChart(
       }
       selectedIndex = (selectedIndex + 1) % numEntries;
       draw();
-    }, 200);
+    }, 150);
 
 
   }
