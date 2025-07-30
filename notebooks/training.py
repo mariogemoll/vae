@@ -39,12 +39,12 @@ def train(
         batch_iterator = BatchIterator(trainset, trainset_batch_size)
         for batch in batch_iterator:
             x = (batch / 255.0).to(device)
-            mu_x, logvar_x, mu_z = vae(x)
+            enc_mu, enc_logvar, dec_mu = vae(x)
             loss: torch.Tensor = -approximate_elbo(
                 x.view(x.shape[0], sidelength * sidelength * 3),
-                mu_z.view(mu_z.shape[0], sidelength * sidelength * 3),
-                mu_x,
-                logvar_x,
+                dec_mu.view(dec_mu.shape[0], sidelength * sidelength * 3),
+                enc_mu,
+                enc_logvar,
             ).mean()
             per_batch_train_losses.append(loss.item())
             optimizer.zero_grad()
@@ -58,12 +58,12 @@ def train(
             batch_iterator = BatchIterator(valset, valset_batch_size)
             for batch in batch_iterator:
                 x = (batch / 255.0).to(device)
-                mu_x, logvar_x, mu_z = vae(x)
+                enc_mu, enc_logvar, dec_mu = vae(x)
                 loss = -approximate_elbo(
                     x.view(x.shape[0], sidelength * sidelength * 3),
-                    mu_z.view(mu_z.shape[0], sidelength * sidelength * 3),
-                    mu_x,
-                    logvar_x,
+                    dec_mu.view(dec_mu.shape[0], sidelength * sidelength * 3),
+                    enc_mu,
+                    enc_logvar,
                 ).mean()
                 per_batch_val_losses.append(loss.item())
 
