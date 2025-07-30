@@ -1,6 +1,6 @@
 import type Margins from './types/margins.js';
 import type Pair from './types/pair';
-import { mapRange } from './util.js';
+import { getEventCoordinates, mapRange } from './util.js';
 
 export function setUp2dSelector(
   svg: SVGSVGElement,
@@ -33,10 +33,12 @@ export function setUp2dSelector(
   let isDragging = false;
   const dragOffset = { x: 0, y: 0 };
 
-  const handleMouseDown = (e: MouseEvent): void => {
+
+  const handleStart = (e: MouseEvent | TouchEvent): void => {
+    const coords = getEventCoordinates(e);
     const rect = svg.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
+    const clickX = coords.clientX - rect.left;
+    const clickY = coords.clientY - rect.top;
 
     // Constrain to chart bounds
     const constrainedX = Math.max(margins.left, Math.min(width - margins.right, clickX));
@@ -61,12 +63,13 @@ export function setUp2dSelector(
     e.preventDefault();
   };
 
-  const handleMouseMove = (e: MouseEvent): void => {
+  const handleMove = (e: MouseEvent | TouchEvent): void => {
     if (!isDragging) {return;}
 
+    const coords = getEventCoordinates(e);
     const rect = svg.getBoundingClientRect();
-    const newX = e.clientX - rect.left - dragOffset.x;
-    const newY = e.clientY - rect.top - dragOffset.y;
+    const newX = coords.clientX - rect.left - dragOffset.x;
+    const newY = coords.clientY - rect.top - dragOffset.y;
 
     // Constrain to chart bounds
     const constrainedX = Math.max(margins.left, Math.min(width - margins.right, newX));
@@ -83,15 +86,21 @@ export function setUp2dSelector(
     }
   };
 
-  const handleMouseUp = (): void => {
+  const handleEnd = (): void => {
     if (!isDragging) {return;}
     isDragging = false;
   };
 
-  // Add event listeners
-  svg.addEventListener('mousedown', handleMouseDown);
-  window.addEventListener('mousemove', handleMouseMove);
-  window.addEventListener('mouseup', handleMouseUp);
+  // Add event listeners for both mouse and touch
+  svg.addEventListener('mousedown', handleStart);
+  svg.addEventListener('touchstart', handleStart, { passive: false });
+
+  window.addEventListener('mousemove', handleMove);
+  window.addEventListener('touchmove', handleMove, { passive: false });
+
+  window.addEventListener('mouseup', handleEnd);
+  window.addEventListener('touchend', handleEnd);
+  window.addEventListener('touchcancel', handleEnd);
 }
 
 export function setUp2dSelectorWithLabels(

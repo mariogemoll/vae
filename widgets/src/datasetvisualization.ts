@@ -4,7 +4,7 @@ import { hueRange, sizeRange } from './constants.js';
 import { addCanvas, addDiv, addErrorMessage, addSpan, removePlaceholder } from './dom.js';
 import type Pair from './types/pair.js';
 import type Scale from './types/scale.js';
-import { makeScale } from './util.js';
+import { getEventCoordinates, makeScale } from './util.js';
 
 function updateScatterUncurried(
   ctx: CanvasRenderingContext2D,
@@ -78,11 +78,12 @@ function setUpUi(
     return minDist <= thresholdPx ? minIndex : null;
   }
 
-  // Handle mouse down to start interaction
-  scatterCanvas.addEventListener('mousedown', (event) => {
+  // Handle mouse/touch down to start interaction
+  const handleStart = (event: MouseEvent | TouchEvent): void => {
+    const coords = getEventCoordinates(event);
     const rect = scatterCanvas.getBoundingClientRect();
-    const mx = event.clientX - rect.left;
-    const my = event.clientY - rect.top;
+    const mx = coords.clientX - rect.left;
+    const my = coords.clientY - rect.top;
 
     const closestIndex = findClosestPoint(mx, my);
     if (closestIndex !== null) {
@@ -93,15 +94,16 @@ function setUpUi(
     }
 
     event.preventDefault();
-  });
+  };
 
-  // Handle mouse move during drag
-  scatterCanvas.addEventListener('mousemove', (event) => {
+  // Handle mouse/touch move during drag
+  const handleMove = (event: MouseEvent | TouchEvent): void => {
     if (!isDragging) {return;}
 
+    const coords = getEventCoordinates(event);
     const rect = scatterCanvas.getBoundingClientRect();
-    const mx = event.clientX - rect.left;
-    const my = event.clientY - rect.top;
+    const mx = coords.clientX - rect.left;
+    const my = coords.clientY - rect.top;
 
     const closestIndex = findClosestPoint(mx, my);
     if (closestIndex !== null) {
@@ -109,12 +111,23 @@ function setUpUi(
       updateImageDisplay(imageCtx, closestIndex);
       updateScatter(selectedPointIndex);
     }
-  });
+  };
 
-  // Handle mouse up to stop interaction
-  window.addEventListener('mouseup', () => {
+  // Handle mouse/touch up to stop interaction
+  const handleEnd = (): void => {
     isDragging = false;
-  });
+  };
+
+  // Add event listeners for both mouse and touch
+  scatterCanvas.addEventListener('mousedown', handleStart);
+  scatterCanvas.addEventListener('touchstart', handleStart, { passive: false });
+
+  scatterCanvas.addEventListener('mousemove', handleMove);
+  scatterCanvas.addEventListener('touchmove', handleMove, { passive: false });
+
+  window.addEventListener('mouseup', handleEnd);
+  window.addEventListener('touchend', handleEnd);
+  window.addEventListener('touchcancel', handleEnd);
 
   // Add a separate function to update the image display
   function updateImageDisplay(imageCtx: CanvasRenderingContext2D, index: number): void {

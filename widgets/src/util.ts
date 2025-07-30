@@ -140,3 +140,12 @@ export function expandFloats(buf: ArrayBuffer): [number, number, Float32Array] {
   }
   return [minVal, maxVal, gridData];
 }
+
+export function getEventCoordinates(
+  e: MouseEvent | TouchEvent
+): { clientX: number; clientY: number } {
+  if ('touches' in e && e.touches.length > 0) {
+    return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+  }
+  return { clientX: (e as MouseEvent).clientX, clientY: (e as MouseEvent).clientY };
+};
