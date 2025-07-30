@@ -1,4 +1,5 @@
 import { getContext } from './canvas.js';
+import { bgHsvSaturation, bgHsvValue } from './constants.js';
 import { hsvToRgb } from './util.js';
 
 function pixelVal(value: number): string {
@@ -16,7 +17,7 @@ export async function renderSample(
   const bigSize = 128;
 
   // Fill HSV background
-  const [r, g, b] = hsvToRgb(hue, 0.8, 0.8);
+  const [r, g, b] = hsvToRgb(hue, bgHsvSaturation, bgHsvValue);
   hiresCtx.fillStyle = `rgb(${pixelVal(r)}, ${pixelVal(g)}, ${pixelVal(b)})`;
   hiresCtx.fillRect(0, 0, bigSize, bigSize);
 

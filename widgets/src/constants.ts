@@ -8,3 +8,6 @@ export const numModels = 9;
 export const numEpochs = 100;
 
 export const gridSize = 10;
+
+export const bgHsvSaturation = 0.8;
+export const bgHsvValue = 0.8;

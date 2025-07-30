@@ -8,7 +8,8 @@ import { addDiv, addEl, addErrorMessage, addTd, makeCanvas,removePlaceholder } f
 import { drawImage } from './drawimage.js';
 import { drawGridOnSvg } from './grid.js';
 import { setUpRemoteControlledDot } from './rcdot.js';
-import { addFrame, rectPath } from './svg.js';
+import { getStandardGaussianHeatmap } from './standardgaussianheatmap.js';
+import { addFrame, addGradientBackground, addImage, rectPath } from './svg.js';
 import { setUp2dSelectorWithLabels } from './twodselector.js';
 import type Margins from './types/margins.js';
 import type OrtFunction from './types/ortfunction';
@@ -81,7 +82,7 @@ function addTrainingSetRect(
   // Combine the two rectangles into a path with fill rule evenodd, this way the valset rectangle
   // will be cut out of the trainset rectangle
   path.setAttribute('d', [trainsetRectPath, valsetRectPath].join(' '));
-  path.setAttribute('fill', '#eee');
+  path.setAttribute('fill', 'rgba(0, 0, 0, 0.1)');
   path.setAttribute('fill-rule', 'evenodd');
   svg.appendChild(path);
 }
@@ -141,6 +142,8 @@ export async function setUpMapping(
     const widget = addDiv(box, {}, { position: 'relative' });
 
     const alphaSvg = addSpaceSvg(widget, 0);
+
+
     const [sizeSpan, hueSpan] = addTwoLabeledTextFields(widget, 'Size', 'Hue');
     const xCanvas = addImgCanvas(widget, 288);
 
@@ -150,7 +153,9 @@ export async function setUpMapping(
     const reconCanvas = addImgCanvas(widget, 634);
     const reconCtx = getContext(reconCanvas);
 
+
     const margins = { top: 10, right: 40, bottom: 40, left: 40 };
+    addGradientBackground(alphaSvg, margins, extendedHueRange);
 
     if (valsetBounds !== undefined) {
       addTrainingSetRect(alphaSvg, margins, valsetBounds);
@@ -158,7 +163,11 @@ export async function setUpMapping(
 
     drawGridOnSvg(alphaSvg, margins, [extendedSizeRange, extendedHueRange], 'grey', alphaGrid);
 
-    drawGridOnSvg(zSvg, margins, [zRange, zRange], 'grey', zGrid);
+    // Add standard Gaussian heatmap to the SVG
+    const heatmapPngUrl = getStandardGaussianHeatmap(200, 200, 3);
+    addImage(zSvg, margins.left, margins.top, 200, 200, heatmapPngUrl);
+
+    drawGridOnSvg(zSvg, margins, [zRange, zRange], 'white', zGrid);
 
     // TODO Calculate initial mu and stdDev values
     const updateZ = setUpRemoteControlledDot(

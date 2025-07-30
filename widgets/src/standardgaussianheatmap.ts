@@ -1,6 +1,7 @@
 import { getContext } from './canvas.js';
 import { standardGaussianPdf } from './gaussian.js';
 import type Margins from './types/margins.js';
+import { map01ToRange } from './util.js';
 
 export function drawGaussian(
   canvas: HTMLCanvasElement,
@@ -26,7 +27,8 @@ export function drawGaussian(
       const x = ((i - margins.left) / (drawableWidth - 1)) * 2 * zRange - zRange;
       const y = ((j - margins.top) / (drawableHeight - 1)) * 2 * zRange - zRange;
       const g = standardGaussianPdf(x, y) / centerValue;
-      const value = Math.floor(g * 255);
+      // const value = Math.floor(g * 255);
+      const value = map01ToRange([64, 191], g);
 
       const idx = (j * W + i) * 4;
       data[idx] = value;

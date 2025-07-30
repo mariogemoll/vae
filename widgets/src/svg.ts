@@ -1,6 +1,6 @@
 import type Margins from './types/margins.js';
 import type Pair from './types/pair.js';
-import { generateTicks, getAttribute, mapRange } from './util.js';
+import { generateTicks, getAttribute, hsvToRgb, mapRange } from './util.js';
 
 export function addSvg(
   parent: HTMLElement, attrs: Record<string, string>, style: Partial<CSSStyleDeclaration>
@@ -154,4 +154,58 @@ export function rectPath([x0, y0]: Pair<number>, [x1, y1]: Pair<number>): string
   const x1Str = x1.toFixed(2);
   const y1Str = y1.toFixed(2);
   return `M${x0Str},${y0Str} H${x1Str} V${y1Str} H${x0Str} Z`;
+}
+
+function floorString(value: number): string {
+  return Math.floor(value).toString();
+}
+
+export function addGradientBackground(
+  svg: SVGSVGElement, margins: Margins, hueRange: Pair<number>
+): void {
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  svg.appendChild(defs);
+
+  const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+  gradient.setAttribute('id', 'hue-gradient');
+  gradient.setAttribute('x1', '0%');
+  gradient.setAttribute('y1', '100%');
+  gradient.setAttribute('x2', '0%');
+  gradient.setAttribute('y2', '0%');
+
+  const steps = 50;
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const hue = (hueRange[0] + t * (hueRange[1] - hueRange[0]));
+    const stop = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+    stop.setAttribute('offset', `${(t * 100).toFixed(1)}%`);
+    const [r, g, b] = hsvToRgb(hue, 0.2, 1.0);
+
+    stop.setAttribute(
+      'stop-color', `rgb(${floorString(r * 255)}, ${floorString(g * 255)}, ${floorString(b * 255)})`
+    );
+    gradient.appendChild(stop);
+  }
+
+  defs.appendChild(gradient);
+
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('x', margins.left.toString());
+  rect.setAttribute('y', margins.top.toString());
+  rect.setAttribute('width', (svg.width.baseVal.value - margins.left - margins.right).toString());
+  rect.setAttribute('height', (svg.height.baseVal.value - margins.top - margins.bottom).toString());
+  rect.setAttribute('fill', 'url(#hue-gradient)');
+  svg.appendChild(rect);
+}
+
+export function addImage(
+  svg: SVGSVGElement, x: number, y: number, width: number, height: number, url: string
+): void {
+  const img = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+  img.setAttributeNS(null, 'x', x.toString());
+  img.setAttributeNS(null, 'y', y.toString());
+  img.setAttributeNS(null, 'width', width.toString());
+  img.setAttributeNS(null, 'height', height.toString());
+  img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', url);
+  svg.appendChild(img);
 }

@@ -5,26 +5,11 @@ import { addDiv, addErrorMessage, removePlaceholder } from './dom.js';
 import { drawImage } from './drawimage.js';
 import { drawGridOnSvg } from './grid.js';
 import { getStandardGaussianHeatmap } from './standardgaussianheatmap.js';
-import { addFrame } from './svg.js';
+import { addFrame, addImage } from './svg.js';
 import { setUp2dSelectorWithLabels } from './twodselector.js';
 import type OrtFunction from './types/ortfunction.js';
 import type Pair from './types/pair.js';
 import { midRangeValue } from './util.js';
-
-function addStandardGaussianHeatmap(svg: SVGSVGElement, x: number, y: number): void {
-  const width = 200; // Width of the heatmap
-  const height = 200; // Height of the heatmap
-  const zrange = 3; // Range for the Gaussian heatmap
-  const pngUrl = getStandardGaussianHeatmap(width, height, zrange);
-  // Inject into SVG
-  const img = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-  img.setAttributeNS(null, 'x', x.toString());
-  img.setAttributeNS(null, 'y', y.toString());
-  img.setAttributeNS(null, 'width', width.toString());
-  img.setAttributeNS(null, 'height', height.toString());
-  img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', pngUrl);
-  svg.appendChild(img);
-}
 
 export function setUpDecoding(
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -43,12 +28,14 @@ export function setUpDecoding(
     const margins = { top: 10, right: 40, bottom: 40, left: 40 };
 
     // Add standard Gaussian heatmap to the SVG
-    addStandardGaussianHeatmap(zSvg, margins.left, margins.top);
-    const reconCtx = getContext(reconCanvas);
+    const heatmapPngUrl = getStandardGaussianHeatmap(200, 200, 3);
+    addImage(zSvg, margins.left, margins.top, 200, 200, heatmapPngUrl);
 
-    drawGridOnSvg(zSvg, margins, [zRange, zRange], 'grey', zGrid);
+    drawGridOnSvg(zSvg, margins, [zRange, zRange], 'white', zGrid);
 
     addFrame(zSvg, margins, zRange, zRange, 5);
+
+    const reconCtx = getContext(reconCanvas);
 
     async function update(z0: number, z1: number): Promise<void> {
       const zArray = [z0, z1];

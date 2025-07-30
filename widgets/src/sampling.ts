@@ -98,7 +98,7 @@ export async function setUpSampling(
     addFrameUsingScales(zCtx, z0Scale, z1Scale, 5);
 
     // Draw all coordinates
-    const colors = currentCoords.map(() => '#ccc');
+    const colors = currentCoords.map(() => 'white');
     drawScatter(zCtx, z0Scale, z1Scale, currentCoords, colors);
 
     // Draw highlight circle around selected coordinate
