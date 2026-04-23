@@ -125,7 +125,7 @@ export function generateTicks(range: [number, number], count: number): number[] 
 
 // Reads two 32-bit little-endian floats from the start of the buffer as min and max values. Then
 // reads the rest as an array of bytes and scales the byte values to the range [min, max].
-export function expandFloats(buf: ArrayBuffer): [number, number, Float32Array] {
+export function expandFloats(buf: ArrayBufferLike): [number, number, Float32Array] {
   const headerView = new DataView(buf, 0, 8);
   const minVal = headerView.getFloat32(0, true); // little-endian
   const maxVal = headerView.getFloat32(4, true);

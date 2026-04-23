@@ -1,6 +1,6 @@
 import { numEpochs,numModels } from './constants.js';
 
-export function loadLosses(lossesBuf: ArrayBuffer): [number, number, number[][], number[][]] {
+export function loadLosses(lossesBuf: ArrayBufferLike): [number, number, number[][], number[][]] {
   const dataView = new DataView(lossesBuf);
 
   const result: number[][][] = Array.from({ length: numModels }, () =>

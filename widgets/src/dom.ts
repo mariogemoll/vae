@@ -32,7 +32,7 @@ export const addDiv: HTMLElementAdder<HTMLDivElement> = (parent, attrs, style = 
 );
 
 export const addSpan: HTMLElementAdder<HTMLSpanElement> = (parent, attrs, style = {}) => (
-  addEl(parent, 'span', attrs, style) as HTMLSpanElement
+  addEl(parent, 'span', attrs, style)
 );
 
 export const makeCanvas: HTMLElementGenerator<HTMLCanvasElement> = (attrs, style = {}) => (
